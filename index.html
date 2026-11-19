@@ -6,13 +6,16 @@
 <title>EPSF-Alex</title>
 <meta property="og:title" content="EPSF-Alex"/>
 <meta property="og:type" content="website"/>
+<meta property="og:image" content="assets/images/favicon.png"/>
 <!--
   GitHub Pages build.
-  Every image is loaded from:  assets/images/2025-2026/<original-file-name>
+  Images:  assets/images/2025-2026/<original-file-name>
+  Icon:    assets/images/favicon.png
   Place this file at the repository root next to the /assets folder.
-  Missing files degrade gracefully (branded photo placeholder / gradient canvas).
 -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230053cd'/%3E%3Cpath d='M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z' fill='%23fff'/%3E%3C/svg%3E"/>
+<link rel="icon" type="image/png" href="assets/images/favicon.png"/>
+<link rel="shortcut icon" type="image/png" href="assets/images/favicon.png"/>
+<link rel="apple-touch-icon" href="assets/images/favicon.png"/>
 <link rel="preload" as="image" href="assets/images/2025-2026/b7932c00a0ddb75520dc29f15d83e6a0.jpg"/>
 <link rel="preload" as="image" href="assets/images/2025-2026/1117a683c0945d658bcc33d757c46364.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -114,9 +117,10 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 /* ---------- stylised committee / event sigils ---------- */
 .sigil{position:absolute;z-index:4;pointer-events:none;opacity:0;scale:.7;
   filter:drop-shadow(0 10px 20px rgba(0,74,152,.16));
-  transition:opacity 1s ease,scale 1s cubic-bezier(.16,1,.3,1);
+  transition:opacity .8s ease,scale .8s cubic-bezier(.16,1,.3,1);
   animation:sgFloat 9s ease-in-out infinite}
 @keyframes sgFloat{0%,100%{transform:translateY(0) rotate(-2.2deg)}50%{transform:translateY(-15px) rotate(2.2deg)}}
+@keyframes sigilCue{0%{scale:.55}62%{scale:1.14}100%{scale:1}}
 .sg-spin{transform-box:view-box;transform-origin:60px 60px;animation:sgSpin 22s linear infinite}
 .sg-spin-r{transform-box:view-box;transform-origin:60px 60px;animation:sgSpin 14s linear infinite reverse}
 @keyframes sgSpin{to{transform:rotate(360deg)}}
@@ -137,34 +141,36 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 .sg-dash{stroke-dasharray:5 7;animation:sgDash 2.6s linear infinite}
 @keyframes sgDash{to{stroke-dashoffset:-24}}
 
-/* ---------- staged, themed entrances ---------- */
-.stage>*{opacity:0}
-.stage>.bg{opacity:1}
-.stage.in>*{opacity:1}
-.stage.in>*:not(.bg):not(.doodle):not(.motif):not(.sigil):not(.hero-fade){animation:var(--rv,rvRise) .84s cubic-bezier(.2,.85,.3,1) backwards}
-.stage.in>.ph{animation:photoPop 1s cubic-bezier(.16,1,.3,1) backwards}
-.stage.in>.doodle{opacity:.46;transition:opacity .85s ease}
-.stage.in>.doodle.soft{opacity:.3}
-.stage.in>.doodle.lite{opacity:.6}
-.stage.in>.doodle.sky{opacity:.9}
-.stage.in>.sigil{opacity:1;scale:1}
-.stage.in>.hero-fade{opacity:1;transition:opacity 1.1s ease}
+/* ---------- phase A : content arrives early, never blank ---------- */
+.stage>*{opacity:0;translate:0 14px}
+.stage>.bg{opacity:1;translate:none}
+.stage.seen>*{opacity:1;translate:0 0;transition:opacity .55s ease,translate .55s cubic-bezier(.2,.9,.3,1)}
+.stage.seen>.doodle{opacity:.46}
+.stage.seen>.doodle.soft{opacity:.3}
+.stage.seen>.doodle.lite{opacity:.6}
+.stage.seen>.doodle.sky{opacity:.9}
+.stage.seen>.sigil{opacity:1;scale:1}
+
+/* ---------- phase B : themed intro fires at the slide's midpoint ---------- */
+.stage.cue>*:not(.bg):not(.doodle):not(.motif):not(.sigil):not(.hero-fade){animation:var(--rv,rvRise) .9s cubic-bezier(.2,.85,.3,1) backwards}
+.stage.cue>.ph{animation:photoPop 1s cubic-bezier(.16,1,.3,1) backwards}
+.stage.cue>.sigil{animation:sigilFloat 9s ease-in-out infinite,sigilCue .95s cubic-bezier(.2,1.5,.4,1) backwards}
 
 [data-rev="rvFold"]>*{transform-origin:top center}
 [data-rev="rvFlip"]>*{transform-origin:left center}
 [data-rev="rvLiquid"]>*{transform-origin:center bottom}
 [data-rev="rvSwing"]>*{transform-origin:top center}
 
-@keyframes rvRise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes rvRise{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
 @keyframes rvFold{0%{opacity:0;transform:perspective(1500px) rotateX(-92deg)}55%{opacity:1}78%{transform:perspective(1500px) rotateX(7deg)}to{opacity:1;transform:perspective(1500px) rotateX(0)}}
 @keyframes rvFlip{0%{opacity:0;transform:perspective(1300px) rotateY(-82deg)}60%{opacity:1}82%{transform:perspective(1300px) rotateY(6deg)}to{opacity:1;transform:perspective(1300px) rotateY(0)}}
-@keyframes rvLiquid{0%{opacity:0;transform:translateY(36px) scaleY(.76)}50%{opacity:1;transform:translateY(-5px) scaleY(1.07)}76%{transform:translateY(2px) scaleY(.97)}to{opacity:1;transform:none}}
-@keyframes rvPop{0%{opacity:0;transform:scale(.8)}62%{opacity:1;transform:scale(1.05)}to{opacity:1;transform:scale(1)}}
+@keyframes rvLiquid{0%{opacity:0;transform:translateY(38px) scaleY(.74)}50%{opacity:1;transform:translateY(-6px) scaleY(1.08)}76%{transform:translateY(2px) scaleY(.97)}to{opacity:1;transform:none}}
+@keyframes rvPop{0%{opacity:0;transform:scale(.78)}62%{opacity:1;transform:scale(1.06)}to{opacity:1;transform:scale(1)}}
 @keyframes rvWrite{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
-@keyframes rvDrop{0%{opacity:0;transform:translateY(-48px)}60%{opacity:1;transform:translateY(7px)}82%{transform:translateY(-3px)}to{opacity:1;transform:none}}
-@keyframes rvIris{0%{opacity:0;transform:scale(.62) rotate(-7deg)}64%{opacity:1;transform:scale(1.04) rotate(1.6deg)}to{opacity:1;transform:none}}
-@keyframes rvSwing{0%{opacity:0;transform:rotate(-7deg) translateY(-16px)}45%{opacity:1;transform:rotate(3deg)}74%{transform:rotate(-1.6deg)}to{opacity:1;transform:none}}
-@keyframes photoPop{0%{opacity:0;transform:translateY(30px) scale(.9)}60%{opacity:1;transform:translateY(-6px) scale(1.022)}to{opacity:1;transform:none}}
+@keyframes rvDrop{0%{opacity:0;transform:translateY(-52px)}60%{opacity:1;transform:translateY(8px)}82%{transform:translateY(-3px)}to{opacity:1;transform:none}}
+@keyframes rvIris{0%{opacity:0;transform:scale(.6) rotate(-8deg)}64%{opacity:1;transform:scale(1.05) rotate(1.6deg)}to{opacity:1;transform:none}}
+@keyframes rvSwing{0%{opacity:0;transform:rotate(-8deg) translateY(-18px)}45%{opacity:1;transform:rotate(3.4deg)}74%{transform:rotate(-1.6deg)}to{opacity:1;transform:none}}
+@keyframes photoPop{0%{opacity:0;transform:translateY(32px) scale(.89)}60%{opacity:1;transform:translateY(-7px) scale(1.024)}to{opacity:1;transform:none}}
 
 /* ---------- transient themed intro motifs ---------- */
 .motif{position:absolute;inset:0;z-index:70;pointer-events:none;overflow:hidden;animation:mLife var(--life,2100ms) linear forwards}
@@ -172,6 +178,8 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 .motif>svg{position:absolute;left:0;top:0;width:1600px;height:768px;overflow:visible}
 .motif [data-a]{transform-box:fill-box;transform-origin:center}
 .motif [data-v]{transform-box:view-box}
+.m-veil{position:absolute;inset:0;background:var(--veil,#fff);animation:mVeil 720ms cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes mVeil{0%{opacity:0}14%{opacity:.88}100%{opacity:0}}
 @keyframes mDraw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
 @keyframes mPop{0%{transform:scale(0);opacity:0}62%{transform:scale(1.14);opacity:1}to{transform:scale(1);opacity:1}}
 @keyframes mRing{0%{transform:scale(.18);opacity:.95}100%{transform:scale(2);opacity:0}}
@@ -245,10 +253,10 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 
 @media (prefers-reduced-motion:reduce){
 html{scroll-behavior:auto}
-.stage>*{opacity:1}
-.stage.in>*{animation:none!important}
+.stage>*{opacity:1;translate:none}
+.stage.seen>*,.stage.cue>*{animation:none!important;transition:none!important}
+.stage>.sigil,.stage.seen>.sigil{opacity:1;scale:1}
 .doodle,.sigil,.sg-spin,.sg-spin-r,.sg-pulse,.sg-drip,.sg-bob,.sg-needle,.sg-wave,.sg-flap,.sg-rise,.sg-dash{animation:none!important}
-.sigil{opacity:1;scale:1;transition:none}
 .squig-fin{stroke-dashoffset:0;transition:none}
 .ph,.ph img,.ph::after,.pill,.stamp,.jreset,.sound{transition:none}
 .ph:hover,.ph:hover img{transform:none}
@@ -1025,8 +1033,8 @@ html{scroll-behavior:auto}
 <canvas id="confetti" aria-hidden="true"></canvas>
 
 <noscript><style>
-.stage>*{opacity:1}
-.sigil{opacity:1;scale:1}
+.stage>*{opacity:1;translate:none}
+.stage>.sigil{opacity:1;scale:1}
 .slide{height:768px;overflow:hidden}
 .stage{left:0;transform:none}
 .squig-fin{stroke-dashoffset:0}
@@ -1041,7 +1049,7 @@ var ASSETS="assets/images/2025-2026/";
 function fit(){root.style.setProperty('--s',(root.clientWidth/1600));}
 fit();addEventListener('resize',fit);addEventListener('orientationchange',fit);
 
-/* ---------- asset resilience (GitHub Pages) ---------- */
+/* ---------- asset resilience ---------- */
 var ARROW_FALLBACK='url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 799 227\'%3E%3Cpath d=\'M20 96c180-34 380-46 560-30l-46-52 106 74-104 76 44-56c-180-16-380-6-560 28z\' fill=\'%23000\'/%3E%3C/svg%3E")';
 (function(){var p=new Image();p.onerror=function(){root.style.setProperty('--arrow',ARROW_FALLBACK);};p.src=ASSETS+"3ace591079d9a5273dd2f54633aec164.svg";})();
 document.addEventListener('error',function(e){
@@ -1246,6 +1254,12 @@ var MOTIF={
   return '<div class="m-sweep"></div>'+svg(o);}
 };
 var LIFE={paper:2300,trifold:2200,parchment:2300,blood:2300,aperture:2100,prism:2200,dialog:2200};
+var VEIL={bloom:"#ffffff",deal:"#e9f0ff",plane:"#eaf1ff",network:"#e6efff",quote:"#f2f6ff",legacy:"#eaf7ef",
+ blood:"#ffe9ec",signpost:"#eaf1ff",career:"#eef3ff",awards:"#fff5e0",stars:"#fff8e8",trifold:"#f4f8ff",
+ parchment:"#fbf3e4",ledger:"#fff6e4",book:"#f0f5ff",exchange:"#eaf1ff",paper:"#faf4e8",people:"#eef3ff",
+ connect:"#f3ecff",megaphone:"#fff4e2",aperture:"#f4edff",globe:"#eaf1ff",shield:"#eaf7ef",compass:"#eaf1ff",
+ prism:"#f6efff",sprout:"#ecf8f1",tree:"#ecf8f1",spotlight:"#fff6e6",stamps:"#eef3ff",write:"#f2f6ff",
+ dialog:"#eef3ff",check:"#ecf8f1",finale:"#ffffff"};
 
 /* ---------- layout : Canva text model ---------- */
 var blocks=[].slice.call(document.querySelectorAll('.tx'));
@@ -1270,8 +1284,8 @@ function layout(){
   });
 }
 layout();
-if(document.fonts&&document.fonts.ready){document.fonts.ready.then(layout).catch(function(){});}
-addEventListener('load',layout);
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){layout();checkCues();}).catch(function(){});}
+addEventListener('load',function(){layout();checkCues();});
 
 /* ---------- sound ---------- */
 var actx=null,master=null,muted=false,soundBtn=document.getElementById('soundBtn');
@@ -1295,23 +1309,10 @@ function paperSfx(){var c=ctx();if(!c||muted)return;var t=c.currentTime;
 function win(){var c=ctx();if(!c||muted)return;var t=c.currentTime;
   [[659.25,0],[880,.13],[1174.66,.26]].forEach(function(p){var o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=p[0];env(g,t+p[1],.01,.34,.2);o.connect(g).connect(master);o.start(t+p[1]);o.stop(t+p[1]+.4);});}
 soundBtn.addEventListener('click',function(){muted=!muted;soundBtn.setAttribute('aria-pressed',String(muted));if(master)master.gain.value=muted?0:.85;if(!muted){ctx();tick();}});
-pills.forEach(function(p){if(p.tagName==='A')p.addEventListener('click',function(){tick();});});
+pills.forEach(function(p){if(p.tagName==='A')p.addEventListener('click',function(){tick();setTimeout(checkCues,80);setTimeout(checkCues,420);setTimeout(checkCues,900);});});
 var SND={blood:drip,paper:paperSfx,trifold:paperSfx,parchment:paperSfx,aperture:thunk,stamps:thunk,write:paperSfx,check:tick};
 
-function playMotif(st){
- if(RM||st.dataset.played)return; st.dataset.played="1";
- var kind=st.getAttribute('data-intro'),fn=MOTIF[kind];
- if(fn){
-   var life=LIFE[kind]||2050;
-   var m=document.createElement('div');
-   m.className='motif'; m.setAttribute('aria-hidden','true'); m.style.setProperty('--life',life+'ms');
-   m.innerHTML=fn(); st.appendChild(m);
-   setTimeout(function(){if(m.parentNode)m.parentNode.removeChild(m);},life+90);
- }
- var f=SND[kind]; if(f&&!muted){ctx();setTimeout(f,260);}
-}
-
-/* ---------- reveal ---------- */
+/* ---------- phase A : arrive early so nothing is ever blank ---------- */
 var stages=[].slice.call(document.querySelectorAll('.stage'));
 stages.forEach(function(st){
   st.style.setProperty('--rv',st.getAttribute('data-rev')||'rvRise');
@@ -1319,16 +1320,49 @@ stages.forEach(function(st){
   for(var i=0;i<kids.length;i++){
     var el=kids[i];
     if(el.classList.contains('bg')||el.classList.contains('motif'))continue;
-    var d=Math.min(n*68,560);
-    el.style.animationDelay=d+'ms'; el.style.transitionDelay=d+'ms'; n++;
+    el.style.transitionDelay=Math.min(n*55,470)+'ms';
+    el.style.animationDelay=Math.min(n*45,300)+'ms';
+    n++;
   }
 });
 if('IntersectionObserver' in window && !RM){
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');playMotif(en.target);io.unobserve(en.target);}});
-  },{threshold:0.14});
-  stages.forEach(function(st){io.observe(st);});
-}else{stages.forEach(function(st){st.classList.add('in');});}
+  var seenIO=new IntersectionObserver(function(es){
+    es.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('seen'); seenIO.unobserve(en.target);} });
+  },{threshold:0.06});
+  stages.forEach(function(st){seenIO.observe(st);});
+}else{ stages.forEach(function(st){st.classList.add('seen');}); }
+
+/* ---------- phase B : cue exactly at the slide's midpoint ---------- */
+var liveMotifs=0, MAX_MOTIFS=2;
+function cue(st){
+  if(st.dataset.cued)return; st.dataset.cued="1";
+  st.classList.add('seen','cue');
+  var kind=st.getAttribute('data-intro'), fn=MOTIF[kind];
+  if(fn && !RM && liveMotifs<MAX_MOTIFS){
+    var life=LIFE[kind]||2050;
+    var m=document.createElement('div');
+    m.className='motif'; m.setAttribute('aria-hidden','true');
+    m.style.setProperty('--life',life+'ms');
+    m.innerHTML='<div class="m-veil" style="--veil:'+(VEIL[kind]||'#fff')+'"></div>'+fn();
+    st.appendChild(m); liveMotifs++;
+    setTimeout(function(){ if(m.parentNode)m.parentNode.removeChild(m); liveMotifs=Math.max(0,liveMotifs-1); },life+90);
+  }
+  var f=SND[kind]; if(f&&!muted){ctx();setTimeout(f,300);}
+}
+function checkCues(){
+  if(RM)return;
+  var vh=innerHeight||root.clientHeight;
+  for(var i=0;i<stages.length;i++){
+    var st=stages[i];
+    if(st.dataset.cued)continue;
+    var r=st.getBoundingClientRect();
+    if(r.height<=0)continue;
+    var mid=r.top+r.height/2;
+    /* fire only once the slide's own midpoint has travelled into the viewing band */
+    if(mid<=vh*0.86 && r.bottom>vh*0.10 && r.top<vh){ cue(st); }
+  }
+}
+if(RM){ stages.forEach(function(st){st.classList.add('seen');st.dataset.cued="1";}); }
 
 /* ---------- counters ---------- */
 function runCount(el){
@@ -1345,7 +1379,7 @@ if('IntersectionObserver' in window && !RM){
   counters.forEach(function(c){cio.observe(c);});
 }
 
-/* ---------- scroll : progress + continuous canvas drift ---------- */
+/* ---------- scroll : progress, canvas drift, midpoint cues ---------- */
 var fill=document.getElementById('progressFill'),cap=document.getElementById('progressCap'),cimg=document.getElementById('canvasImg');
 var hero=document.querySelector('#welcome .bg');
 var ticking=false;
@@ -1356,6 +1390,7 @@ function onScroll(){
     var max=root.scrollHeight-innerHeight,p=max>0?Math.min(1,Math.max(0,root.scrollTop/max)):0;
     fill.style.width=(p*100)+'%';
     cap.style.transform='translateX('+(p*(innerWidth-30)).toFixed(1)+'px) rotate(-18deg)';
+    checkCues();
     if(RM)return;
     cimg.style.transform='translate(-50%,calc(-50% + '+((p-.5)*-56).toFixed(1)+'px)) scale(1.08)';
     if(hero){
@@ -1367,7 +1402,12 @@ function onScroll(){
     }
   });
 }
-addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll);onScroll();
+addEventListener('scroll',onScroll,{passive:true});
+addEventListener('resize',function(){onScroll();checkCues();});
+addEventListener('hashchange',function(){setTimeout(checkCues,60);setTimeout(checkCues,520);});
+addEventListener('orientationchange',function(){setTimeout(checkCues,220);});
+onScroll();checkCues();
+setTimeout(checkCues,120);
 
 /* ---------- finale journey ---------- */
 var stamps=[].slice.call(document.querySelectorAll('[data-stamp]'));
