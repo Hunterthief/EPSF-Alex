@@ -10,7 +10,7 @@
 <meta property="og:type" content="website"/>
 <meta property="og:image" content="assets/images/favicon.png"/>
 <!--
-  GitHub Pages build.
+  GitHub Pages build — desktop composition on every device.
   Photos : assets/images/2025-2026/<original-file-name>
   Icon   : assets/images/favicon.png
   Place this file at the repository root, next to /assets.
@@ -26,6 +26,7 @@
 <style>
 :root{
   --s:1;
+  --u:calc(1px / var(--s));            /* one real device pixel, expressed in stage units */
   --blue:#0053cd; --blue2:#004a98; --sky:#8db6ff; --tint:#e9f0ff;
   --blood:#d81f3a; --amber:#f2a100; --green:#12a05c; --violet:#7a3ff2;
   --ink:#231f20; --paper:#fbf8f2;
@@ -42,12 +43,12 @@ body{background:#fff;font-family:Montserrat,Arial,Helvetica,sans-serif;color:#00
 ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#1a66e0,var(--blue))}
 ::selection{background:var(--blue);color:#fff}
 :focus-visible{outline:3px dashed var(--blue);outline-offset:3px}
-img{display:block;max-width:100%}
+img{display:block}
 a{color:inherit}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
 [id]{scroll-margin-top:0}
 
-/* ---------- one continuous canvas ---------- */
+/* ---------- one continuous canvas : the PC layout, at every width ---------- */
 .canvas{position:fixed;inset:0;z-index:0;pointer-events:none;background:#fff;overflow:hidden}
 .canvas img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:cover;transform:translate(-50%,-50%) scale(1.08);will-change:transform}
 .canvas.missing img{display:none}
@@ -99,6 +100,9 @@ ul.d li{margin:0}
 
 .pill{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--blue);border:2px solid var(--ink);border-radius:100px;color:#fff;font-family:Arial,Helvetica,"Liberation Sans",sans-serif;font-weight:700;font-size:27.9998px;line-height:39px;text-decoration:none;transition:transform .2s cubic-bezier(.2,.9,.3,1.4),box-shadow .2s,filter .2s}
 .pill span{display:inline-block;white-space:nowrap;transform-origin:center center}
+/* touch target grows to a real 24px tall band when the stage is scaled down */
+.pill::before{content:"";position:absolute;left:0;right:0;
+  top:min(0px,calc(50% - 12 * var(--u)));bottom:min(0px,calc(50% - 12 * var(--u)))}
 a.pill:hover{transform:translateY(-3px);box-shadow:5px 6px 0 var(--ink);filter:brightness(1.07)}
 a.pill:active{transform:translateY(1px);box-shadow:2px 2px 0 var(--ink)}
 a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
@@ -144,24 +148,15 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 .sg-dash{stroke-dasharray:5 7;animation:sgDash 2.6s linear infinite}
 @keyframes sgDash{to{stroke-dashoffset:-24}}
 
-/* =========================================================
-   REVEAL — a slide exists only through its cue.
-   Wrappers use display:contents on desktop, so the hidden /
-   animated unit there is their CHILD, not the wrapper.
-   ========================================================= */
+/* ---------- a slide exists only through its cue ---------- */
 .stage>*{opacity:0}
+.stage>.node>*,.stage>.card>*,.stage>.chip>*{opacity:0}
 .stage>.bg{opacity:1}
-@media (min-width:901px){
-  .stage>.node>*,.stage>.card>*,.stage>.chip>*{opacity:0}
-}
 .stage.cue>*{opacity:1}
+.stage.cue>.node>*,.stage.cue>.card>*,.stage.cue>.chip>*{opacity:1;animation:var(--rv,rvRise) .9s cubic-bezier(.2,.85,.3,1) backwards}
+.stage.cue>.card>.rect,.stage.cue>.chip>.rect{animation:rvPop .9s cubic-bezier(.2,.85,.3,1) backwards}
 .stage.cue>*:not(.bg):not(.doodle):not(.motif):not(.sigil):not(.hero-fade){animation:var(--rv,rvRise) .9s cubic-bezier(.2,.85,.3,1) backwards}
-.stage.cue>.ph{animation:photoPop 1s cubic-bezier(.16,1,.3,1) backwards}
-@media (min-width:901px){
-  .stage.cue>.node>*,.stage.cue>.card>*,.stage.cue>.chip>*{opacity:1;animation:var(--rv,rvRise) .9s cubic-bezier(.2,.85,.3,1) backwards}
-  .stage.cue>.card>.rect,.stage.cue>.chip>.rect{animation:rvPop .9s cubic-bezier(.2,.85,.3,1) backwards}
-  .stage.cue>.node>.ph,.stage.cue>.card>.ph,.stage.cue>.chip>.ph{animation:photoPop 1s cubic-bezier(.16,1,.3,1) backwards}
-}
+.stage.cue>.ph,.stage.cue>.node>.ph,.stage.cue>.card>.ph{animation:photoPop 1s cubic-bezier(.16,1,.3,1) backwards}
 .stage.cue>.doodle{opacity:.46;transition:opacity .7s ease}
 .stage.cue>.doodle.soft{opacity:.3}
 .stage.cue>.doodle.lite{opacity:.6}
@@ -188,8 +183,7 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 /* ---------- transient themed motifs ---------- */
 .motif{position:absolute;inset:0;z-index:70;pointer-events:none;overflow:hidden;animation:mLife var(--life,2100ms) linear forwards}
 @keyframes mLife{0%,68%{opacity:1}100%{opacity:0}}
-.m-art{position:absolute;inset:0}
-.m-art>svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+.motif>svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
 .motif [data-a]{transform-box:fill-box;transform-origin:center}
 .motif [data-v]{transform-box:view-box}
 .m-veil{position:absolute;inset:0;background:var(--veil,#fff);animation:mVeil 760ms cubic-bezier(.2,.8,.3,1) forwards}
@@ -223,7 +217,7 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   animation:tfFold 1650ms cubic-bezier(.3,.85,.25,1) calc(var(--i)*110ms) backwards}
 @keyframes tfFold{0%{transform:rotateX(-94deg)}44%{transform:rotateX(0)}70%{transform:rotateX(0)}100%{transform:rotateX(86deg);opacity:0}}
 
-/* ---------- fixed chrome ---------- */
+/* ---------- fixed chrome (always real device pixels) ---------- */
 .grain{position:fixed;inset:0;z-index:2500;pointer-events:none;opacity:.04;mix-blend-mode:multiply;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
 .topbar{position:fixed;top:0;left:0;right:0;height:5px;z-index:3000;pointer-events:none;background:rgba(0,83,205,.14)}
@@ -238,6 +232,22 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 .sound[aria-pressed="true"] .off{display:block}
 .sound[aria-pressed="true"]{background:var(--tint)}
 
+/* ---------- portrait nudge : the deck is built for a wide frame ---------- */
+.viewhint{position:fixed;left:50%;bottom:calc(16px + var(--sab));z-index:3002;
+  display:none;align-items:center;gap:10px;max-width:calc(100vw - 28px);
+  padding:10px 12px 10px 14px;border:2.5px solid var(--ink);border-radius:999px;
+  background:var(--paper);box-shadow:4px 4px 0 var(--ink);
+  transform:translateX(-50%) translateY(14px);opacity:0;
+  transition:opacity .45s ease,transform .45s cubic-bezier(.2,1.3,.4,1)}
+.viewhint.show{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+.viewhint .rot{width:22px;height:22px;flex:none;color:var(--blue);animation:rotNudge 3.4s ease-in-out infinite}
+@keyframes rotNudge{0%,58%,100%{transform:rotate(0)}70%{transform:rotate(-90deg)}86%{transform:rotate(-90deg)}}
+.viewhint b{font-weight:800;font-size:12.5px;line-height:1.25;color:var(--ink);letter-spacing:.01em}
+.viewhint b i{font-style:normal;color:var(--blue)}
+.viewhint .x{width:26px;height:26px;flex:none;display:grid;place-items:center;border:2px solid var(--ink);border-radius:99px;background:#fff}
+.viewhint .x svg{width:11px;height:11px;color:var(--ink)}
+.viewhint .x:active{transform:translate(1px,1px)}
+
 /* ---------- finale journey ---------- */
 .jpath{position:absolute;z-index:1}
 .jpath .base{stroke:#c9d8f5;stroke-width:4;stroke-dasharray:2 12;stroke-linecap:round;fill:none}
@@ -245,15 +255,17 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 .stamps{position:absolute;z-index:2;display:flex;justify-content:space-between;align-items:flex-start}
 .stampw{display:grid;justify-items:center;gap:10px;width:76px}
 .stamp{width:76px;height:76px;border-radius:50%;border:3px solid var(--ink);background:#fff;display:grid;place-items:center;box-shadow:4px 5px 0 rgba(0,83,205,.22);position:relative;transition:transform .2s,background .25s,box-shadow .2s}
+.stamp::before{content:"";position:absolute;inset:min(0px,calc(50% - 22 * var(--u)))}
 .stamp:hover{transform:translateY(-4px) rotate(-3deg);box-shadow:6px 8px 0 rgba(0,83,205,.28)}
 .stamp .sc{width:28px;height:28px;color:var(--sky);transition:.2s}
 .stamp .sk{position:absolute;width:42px;height:42px;color:var(--blue);opacity:0;transform:scale(2.2) rotate(-30deg)}
 .stamp[aria-pressed="true"]{background:var(--tint);transform:rotate(-6deg)}
 .stamp[aria-pressed="true"] .sc{opacity:0;transform:scale(.4)}
 .stamp[aria-pressed="true"] .sk{opacity:1;transform:scale(1) rotate(-8deg);transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .15s}
-.stamp[aria-pressed="true"]::after{content:"";position:absolute;inset:6px;border:2.5px dashed var(--blue);border-radius:50%;opacity:.55}
+.stamp[aria-pressed="true"]::after{content:"";position:absolute;inset:6px;border:2.5px dashed var(--blue);border-radius:50%;opacity:.55;pointer-events:none}
 .stampw b{font-weight:800;font-size:20px;line-height:30px;color:var(--ink);white-space:nowrap}
 .jreset{position:absolute;z-index:2;width:44px;height:44px;border:2.5px solid var(--ink);border-radius:99px;background:#fff;display:grid;place-items:center;box-shadow:3px 3px 0 var(--ink);transition:transform .2s,box-shadow .2s}
+.jreset::before{content:"";position:absolute;inset:min(0px,calc(50% - 22 * var(--u)))}
 .jreset:hover{transform:translate(-1px,-1px) rotate(-30deg);box-shadow:4px 4px 0 var(--ink)}
 .jreset:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 .jreset svg{width:20px;height:20px;color:var(--ink)}
@@ -264,121 +276,14 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 #confetti{position:fixed;inset:0;z-index:4000;pointer-events:none}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-/* =========================================================
-   MOBILE — same identity, roomier, nothing cropped
-   ========================================================= */
-@media (max-width:900px){
-  .slide{height:auto}
-  .stage{
-    position:relative;left:auto;top:auto;transform:none;
-    width:100%;height:auto;
-    display:grid;grid-template-columns:minmax(0,1fr);
-    row-gap:20px;column-gap:0;align-content:start;
-    padding:calc(52px + var(--sat)) calc(22px + var(--sal)) calc(62px + var(--sab)) calc(22px + var(--sal));
-  }
-  .stage>*{order:var(--o,40)}
-
-  .el{position:relative!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;min-width:0}
-  .tx{transform:none!important;max-width:100%;overflow-wrap:break-word}
-  .ln{white-space:normal;display:inline}
-  .ln::after{content:" "}
-  .tx[data-t="hero"] .ln,.tx[data-t="title"] .ln,.tx[data-t="sub"] .ln,.tx[data-t="label"] .ln,
-  .tx[data-t="word"] .ln,.tx[data-t="stat"] .ln,.tx[data-t="year"] .ln,.tx[data-t="node"] .ln{display:block}
-  .tx[data-t="hero"] .ln::after,.tx[data-t="title"] .ln::after,.tx[data-t="sub"] .ln::after,.tx[data-t="label"] .ln::after,
-  .tx[data-t="word"] .ln::after,.tx[data-t="stat"] .ln::after,.tx[data-t="year"] .ln::after,.tx[data-t="node"] .ln::after{content:none}
-  .tx[data-t="body"] .ln.k,.tx[data-t="body"] .ln.bl{display:block;margin-top:.7em}
-  .tx[data-t="body"] .ln.k::after,.tx[data-t="body"] .ln.bl::after{content:none}
-  .tx[data-t="body"]>.ln:first-child{margin-top:0}
-  .ln.sp{display:block!important;height:.7em;font-size:0!important;line-height:0!important;margin:0!important;overflow:hidden}
-  .ln.sp::after{content:none}
-
-  .tx[data-t="hero"]{font-size:clamp(34px,10vw,54px)!important;line-height:1.12!important}
-  .tx[data-t="title"]{font-size:clamp(30px,8.4vw,44px)!important;line-height:1.16!important;margin-bottom:2px}
-  .tx[data-t="label"]{font-size:clamp(22px,6vw,31px)!important;line-height:1.24!important}
-  .tx[data-t="sub"]{font-size:clamp(18.5px,5.1vw,24px)!important;line-height:1.3!important;padding-left:13px;border-left:4px solid var(--blue);margin-top:4px}
-  .tx[data-t="word"]{font-size:clamp(27px,7.8vw,39px)!important;line-height:1.18!important}
-  .tx[data-t="node"]{font-size:clamp(23px,6.4vw,32px)!important;line-height:1.2!important}
-  .tx[data-t="stat"]{font-size:clamp(27px,7.8vw,40px)!important;line-height:1.18!important}
-  .tx[data-t="year"]{font-size:clamp(23px,6.4vw,32px)!important;line-height:1.2!important}
-  .tx[data-t="body"]{font-size:clamp(15px,4.1vw,17.5px)!important;line-height:1.72!important}
-  .tx[data-t="small"]{font-size:clamp(12.5px,3.4vw,14.5px)!important;line-height:1.5!important}
-  ul.d{padding-left:1.2em;margin-top:.5em}
-  ul.d li{margin-bottom:.55em}
-  ul.d li:last-child{margin-bottom:0}
-
-  .ph{position:relative!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;
-    aspect-ratio:16/10;border-radius:20px!important;min-width:0}
-  .ph img{position:absolute;inset:0;width:100%;height:100%}
-  .ph>div{position:absolute!important;inset:0!important;left:0!important;top:0!important;width:100%!important;height:100%!important;transform:none!important}
-  @supports not (aspect-ratio:1){.ph{height:56vw!important}}
-
-  .pill{position:relative!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;
-    padding:15px 18px;min-height:54px;font-size:16px!important;line-height:1.32!important;border-radius:999px}
-  .pill span{transform:none!important;white-space:normal}
-
-  .rect{display:none}
-  .card{display:block;background:linear-gradient(150deg,var(--blue),var(--blue2));border-radius:24px;padding:26px 20px;
-    box-shadow:0 16px 30px -20px rgba(0,74,152,.75)}
-  .card.half{padding:22px 18px}
-  .chip{display:block;background:linear-gradient(150deg,var(--blue),var(--blue2));border-radius:18px;padding:14px 12px;
-    box-shadow:0 12px 22px -18px rgba(0,74,152,.75)}
-  .node{display:block;background:#fff;border:2px solid var(--tint);border-left:5px solid var(--blue);
-    border-radius:18px;padding:16px 18px;box-shadow:0 10px 22px -18px rgba(0,74,152,.7)}
-  .node .tx.c{text-align:left}
-  .node .el+.el{margin-top:5px}
-  .card .el+.el,.chip .el+.el{margin-top:4px}
-  .diag{display:none}
-
-  .sigil{position:relative!important;left:auto!important;top:auto!important;width:72px!important;height:72px!important;
-    justify-self:center;order:0;margin-bottom:2px}
-  .doodle{opacity:.3}
-  .doodle.soft{opacity:.2}
-
-  /* motifs: small, complete, centred in the part of the slide you can see */
-  .m-art{left:0;right:0;top:var(--ay,50%);bottom:auto;height:auto;aspect-ratio:1600/768;transform:translateY(-50%)}
-  @supports not (aspect-ratio:1){.m-art{height:48vw}}
-  .m-veil{animation-duration:660ms}
-  @keyframes mVeil{0%{opacity:0}14%{opacity:.8}100%{opacity:0}}
-
-  .blob{position:relative!important;left:auto!important;top:auto!important;width:48px!important;height:27px!important;
-    justify-self:center;transform:rotate(90deg);margin:-6px 0}
-
-  .squig-fin{position:relative!important;left:auto!important;top:auto!important;width:74%!important;height:15px!important;justify-self:center}
-  .jpath{display:none}
-  .stamps{position:relative!important;left:auto!important;top:auto!important;width:100%!important;height:auto!important;
-    justify-content:space-between;padding:4px 2px 0}
-  .stampw{width:74px;gap:9px}
-  .stamp{width:66px;height:66px}
-  .stamp .sc{width:25px;height:25px}
-  .stamp .sk{width:37px;height:37px}
-  .stampw b{font-size:14.5px;line-height:20px}
-  .jreset{position:relative!important;left:auto!important;top:auto!important;justify-self:center;margin-top:8px;width:50px;height:50px}
-
-  #welcome .stage{min-height:86vh;min-height:86svh;align-content:center;padding-top:calc(64px + var(--sat))}
-  #welcome .bg{position:absolute;inset:0;top:0;left:0;width:100%;height:100%;object-fit:cover}
-  #welcome .hero-fade{height:140px}
-  #page-0 .stage,#page-3 .stage{min-height:60vh;min-height:60svh;align-content:center}
-  #finale .stage{min-height:74vh;min-height:74svh;align-content:center}
-  #page-4 .tx[data-t="sub"]{margin-top:12px}
-  #mega .tx[data-t="sub"]{margin-top:10px}
-}
-@media (max-width:380px){
-  .stage{padding-left:18px;padding-right:18px;row-gap:18px}
-  .card{padding:22px 16px}
-}
-@media (max-width:900px) and (orientation:landscape){
-  #welcome .stage{min-height:100svh}
-  #page-0 .stage,#page-3 .stage{min-height:80svh}
-}
-
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   .stage>*,.stage>.node>*,.stage>.card>*,.stage>.chip>*{opacity:1!important}
   .stage.cue>*,.stage.cue>.node>*,.stage.cue>.card>*,.stage.cue>.chip>*{animation:none!important;transition:none!important}
   .sigil{opacity:1!important;transform:none!important}
-  .doodle,.sigil>svg,.sg-spin,.sg-spin-r,.sg-pulse,.sg-drip,.sg-bob,.sg-needle,.sg-wave,.sg-flap,.sg-rise,.sg-dash{animation:none!important}
+  .doodle,.sigil>svg,.sg-spin,.sg-spin-r,.sg-pulse,.sg-drip,.sg-bob,.sg-needle,.sg-wave,.sg-flap,.sg-rise,.sg-dash,.viewhint .rot{animation:none!important}
   .squig-fin{stroke-dashoffset:0;transition:none}
-  .ph,.ph img,.ph::after,.pill,.stamp,.jreset,.sound{transition:none}
+  .ph,.ph img,.ph::after,.pill,.stamp,.jreset,.sound,.viewhint{transition:none}
   .ph:hover,.ph:hover img{transform:none}
   .motif{display:none}
 }
@@ -407,6 +312,8 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20c-5-3.4-8-6.5-8-9.9A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 8 2.7c0 3.4-3 6.5-8 9.9z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
 <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 6.2L20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8z" fill="currentColor"/><circle cx="19" cy="18.5" r="1.6" fill="currentColor"/></symbol>
 <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L19.5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/></symbol>
+<symbol id="i-rot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="7.5" y="2.5" width="9" height="19" rx="2.4"/><path d="M10.6 19.2h2.8"/><path d="M2.6 15.4a9.6 9.6 0 0 0 2.2 4.2"/><path d="M2.2 19.9l.4-4.5 4.4.6"/></g></symbol>
 <symbol id="i-reset" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3v4.5h-4.5"/></g></symbol>
 <symbol id="i-snd" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16.5 9.2a4.4 4.4 0 0 1 0 5.6"/><path d="M19 7a8 8 0 0 1 0 10"/></g></symbol>
 <symbol id="i-mute" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5"/></g></symbol>
@@ -446,6 +353,12 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="off" aria-hidden="true"><use href="#i-mute"/></svg>
 </button>
 
+<div class="viewhint" id="viewHint" role="status">
+  <svg class="rot" aria-hidden="true"><use href="#i-rot"/></svg>
+  <b>Full desktop view — <i>rotate</i> or pinch to zoom</b>
+  <button class="x" id="hintClose" aria-label="Dismiss"><svg aria-hidden="true"><use href="#i-x"/></svg></button>
+</div>
+
 <main>
 
 <!-- 1 · WELCOME -->
@@ -456,8 +369,8 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle sky" data-x="1466" data-y="150" data-s="48" style="--dr:-10deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle lite" data-x="118" data-y="638" data-s="44" style="--dr:8deg;animation-delay:-4s" aria-hidden="true"><use href="#i-cross"/></svg>
   <svg class="doodle lite soft" data-x="1480" data-y="640" data-s="40" style="--dr:-6deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:409.714px;top:224.029px;width:780.571px;height:319.941px;--o:1">
-    <div class="tx c wh" data-t="hero" data-dy="-12.3491" style="font-size:123.491px;line-height:172.32px"><div class="ln">Welcome to</div><div class="ln">EPSF-Alex</div></div>
+  <div class="el" style="left:409.714px;top:224.029px;width:780.571px;height:319.941px">
+    <div class="tx c wh" data-dy="-12.3491" style="font-size:123.491px;line-height:172.32px"><div class="ln">Welcome to</div><div class="ln">EPSF-Alex</div></div>
   </div>
 </div></section>
 
@@ -467,15 +380,15 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="180" data-s="44" style="--dr:10deg;animation-delay:-2s" aria-hidden="true"><use href="#i-comp"/></svg>
   <svg class="doodle soft" data-x="160" data-y="660" data-s="40" style="--dr:7deg;animation-delay:-3.4s" aria-hidden="true"><use href="#i-book"/></svg>
   <svg class="doodle soft" data-x="1440" data-y="650" data-s="40" style="--dr:-8deg;animation-delay:-1.5s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:575.375px;top:76.8px;width:464.703px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Content</div></div></div>
-  <a class="pill" style="left:278.357px;top:244.655px;width:363.357px;height:76.251px;--o:2" href="#page-0"><span>Contact Us</span></a>
-  <a class="pill" style="left:278.357px;top:348.906px;width:363.357px;height:76.251px;--o:3" href="#page-1"><span>Who are we?</span></a>
-  <a class="pill" style="left:278.357px;top:453.157px;width:363.357px;height:76.251px;--o:4" href="#page-2"><span>Our Highlights</span></a>
-  <a class="pill" style="left:278.357px;top:557.409px;width:363.357px;height:76.251px;--o:5" href="#page-3"><span>Our Role Models</span></a>
-  <a class="pill" style="left:971.944px;top:244.655px;width:363.357px;height:76.251px;--o:6" href="#page-4"><span>Our Committees</span></a>
-  <a class="pill" style="left:971.944px;top:345.874px;width:363.357px;height:76.251px;--o:7" href="#page-e"><span>Our Opportiunities</span></a>
-  <a class="pill" style="left:971.944px;top:447.126px;width:363.357px;height:76.251px;--o:8" href="#page-f"><span>Our Projects</span></a>
-  <a class="pill" style="left:971.944px;top:548.377px;width:363.357px;height:76.251px;--o:9" href="#page-g"><span>How to join us?</span></a>
+  <div class="el" style="left:575.375px;top:76.8px;width:464.703px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Content</div></div></div>
+  <a class="pill" style="left:278.357px;top:244.655px;width:363.357px;height:76.251px" href="#page-0"><span>Contact Us</span></a>
+  <a class="pill" style="left:278.357px;top:348.906px;width:363.357px;height:76.251px" href="#page-1"><span>Who are we?</span></a>
+  <a class="pill" style="left:278.357px;top:453.157px;width:363.357px;height:76.251px" href="#page-2"><span>Our Highlights</span></a>
+  <a class="pill" style="left:278.357px;top:557.409px;width:363.357px;height:76.251px" href="#page-3"><span>Our Role Models</span></a>
+  <a class="pill" style="left:971.944px;top:244.655px;width:363.357px;height:76.251px" href="#page-4"><span>Our Committees</span></a>
+  <a class="pill" style="left:971.944px;top:345.874px;width:363.357px;height:76.251px" href="#page-e"><span>Our Opportiunities</span></a>
+  <a class="pill" style="left:971.944px;top:447.126px;width:363.357px;height:76.251px" href="#page-f"><span>Our Projects</span></a>
+  <a class="pill" style="left:971.944px;top:548.377px;width:363.357px;height:76.251px" href="#page-g"><span>How to join us?</span></a>
 </div></section>
 
 <!-- 3 · CONTACT -->
@@ -484,8 +397,8 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1250" data-y="240" data-s="44" style="--dr:12deg;animation-delay:-2.2s" aria-hidden="true"><use href="#i-spark"/></svg>
   <svg class="doodle soft" data-x="350" data-y="580" data-s="42" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="1230" data-y="560" data-s="40" style="--dr:-7deg;animation-delay:-1.1s" aria-hidden="true"><use href="#i-cross"/></svg>
-  <div class="el" style="left:499.656px;top:320.608px;width:599.688px;height:126.783px;--o:1">
-    <div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><a href="https://linkfly.to/epsf-alex" target="_blank" rel="noopener" style="text-decoration:underline"><span class="k">Contact</span><span> us</span></a></div></div>
+  <div class="el" style="left:499.656px;top:320.608px;width:599.688px;height:126.783px">
+    <div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><a href="https://linkfly.to/epsf-alex" target="_blank" rel="noopener" style="text-decoration:underline"><span class="k">Contact</span><span> us</span></a></div></div>
   </div>
 </div></section>
 
@@ -501,26 +414,26 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   </svg>
   <svg class="diag" style="left:696.992px;top:372.917px;width:35.24px;height:3px" aria-hidden="true"><path d="M0,1.5L33.7397,1.5" stroke="#0053cd" stroke-width="3" fill="none"/><path d="M27.7397,-3L33.7397,1.5L27.7397,6" stroke="#0053cd" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <svg class="diag" style="left:948.624px;top:374.417px;width:35.24px;height:3px" aria-hidden="true"><path d="M0,1.5L33.7397,1.5" stroke="#0053cd" stroke-width="3" fill="none"/><path d="M27.7397,-3L33.7397,1.5L27.7397,6" stroke="#0053cd" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  <div class="el" style="left:436.719px;top:76.8px;width:726.563px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Who</span><span> are we?</span></div></div></div>
-  <div class="node" style="--o:2">
-    <div class="el" style="left:254.836px;top:284.684px;width:113.513px;height:47.892px"><div class="tx c" data-t="node" data-dy="-4.0541" style="font-size:40.541px;line-height:56px"><div class="ln">WHO</div></div></div>
+  <div class="el" style="left:436.719px;top:76.8px;width:726.563px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Who</span><span> are we?</span></div></div></div>
+  <div class="node">
+    <div class="el" style="left:254.836px;top:284.684px;width:113.513px;height:47.892px"><div class="tx c" data-dy="-4.0541" style="font-size:40.541px;line-height:56px"><div class="ln">WHO</div></div></div>
   </div>
-  <div class="node" style="--o:3">
-    <div class="el" style="left:273.755px;top:419.171px;width:75.675px;height:53.092px"><div class="tx c" data-t="node" data-dy="-4.45409" style="font-size:44.5409px;line-height:62px"><div class="ln">FIP</div></div></div>
+  <div class="node">
+    <div class="el" style="left:273.755px;top:419.171px;width:75.675px;height:53.092px"><div class="tx c" data-dy="-4.45409" style="font-size:44.5409px;line-height:62px"><div class="ln">FIP</div></div></div>
   </div>
-  <div class="node" style="--o:4">
-    <div class="el" style="left:527.694px;top:336.647px;width:147.712px;height:75.54px"><div class="tx c" data-t="node" data-dy="-6.3207" style="font-size:63.2073px;line-height:88.1818px"><div class="ln">IPSF</div></div></div>
-    <div class="el" style="left:515.051px;top:412.187px;width:172.999px;height:22.305px"><div class="tx c" data-t="small" data-dy="-1.8969" style="font-size:18.969px;line-height:26.0986px"><div class="ln">(In <span class="k" data-count="100">100</span> Countries)</div></div></div>
+  <div class="node">
+    <div class="el" style="left:527.694px;top:336.647px;width:147.712px;height:75.54px"><div class="tx c" data-dy="-6.3207" style="font-size:63.2073px;line-height:88.1818px"><div class="ln">IPSF</div></div></div>
+    <div class="el" style="left:515.051px;top:412.187px;width:172.999px;height:22.305px"><div class="tx c" data-dy="-1.8969" style="font-size:18.969px;line-height:26.0986px"><div class="ln">(In <span class="k" data-count="100">100</span> Countries)</div></div></div>
   </div>
-  <div class="node" style="--o:5">
-    <div class="el" style="left:754.232px;top:336.647px;width:169.393px;height:75.54px"><div class="tx c" data-t="node" data-dy="-6.3207" style="font-size:63.2073px;line-height:88.1818px"><div class="ln">EPSF</div></div></div>
-    <div class="el" style="left:753.959px;top:408.018px;width:169.665px;height:22.206px"><div class="tx c" data-t="small" data-dy="-1.8969" style="font-size:18.969px;line-height:26px"><div class="ln">Since <span class="k">1982</span></div></div></div>
-    <div class="el" style="left:754.232px;top:431.297px;width:169.665px;height:22.305px"><div class="tx c" data-t="small" data-dy="-1.8969" style="font-size:18.969px;line-height:26.0986px"><div class="ln">(<span class="k" data-count="40">40</span> Associations)</div></div></div>
-    <div class="el" style="left:736.371px;top:461.11px;width:205.386px;height:22.206px"><div class="tx c" data-t="small" data-dy="-1.8969" style="font-size:18.969px;line-height:26px"><div class="ln">Over <span class="k" data-count="6000">6000</span> Students</div></div></div>
+  <div class="node">
+    <div class="el" style="left:754.232px;top:336.647px;width:169.393px;height:75.54px"><div class="tx c" data-dy="-6.3207" style="font-size:63.2073px;line-height:88.1818px"><div class="ln">EPSF</div></div></div>
+    <div class="el" style="left:753.959px;top:408.018px;width:169.665px;height:22.206px"><div class="tx c" data-dy="-1.8969" style="font-size:18.969px;line-height:26px"><div class="ln">Since <span class="k">1982</span></div></div></div>
+    <div class="el" style="left:754.232px;top:431.297px;width:169.665px;height:22.305px"><div class="tx c" data-dy="-1.8969" style="font-size:18.969px;line-height:26.0986px"><div class="ln">(<span class="k" data-count="40">40</span> Associations)</div></div></div>
+    <div class="el" style="left:736.371px;top:461.11px;width:205.386px;height:22.206px"><div class="tx c" data-dy="-1.8969" style="font-size:18.969px;line-height:26px"><div class="ln">Over <span class="k" data-count="6000">6000</span> Students</div></div></div>
   </div>
-  <div class="node" style="--o:6">
-    <div class="el" style="left:1008.86px;top:338.238px;width:336.3px;height:75.359px"><div class="tx c" data-t="node" data-dy="-6.32073" style="font-size:63.2073px;line-height:88px"><div class="ln">EPSF-<span class="k">Alex</span></div></div></div>
-    <div class="el" style="left:1082.5px;top:409.091px;width:169.665px;height:22.206px"><div class="tx c" data-t="small" data-dy="-1.8969" style="font-size:18.969px;line-height:26px"><div class="ln">Since <span class="k">11/11/2011</span></div></div></div>
+  <div class="node">
+    <div class="el" style="left:1008.86px;top:338.238px;width:336.3px;height:75.359px"><div class="tx c" data-dy="-6.32073" style="font-size:63.2073px;line-height:88px"><div class="ln">EPSF-<span class="k">Alex</span></div></div></div>
+    <div class="el" style="left:1082.5px;top:409.091px;width:169.665px;height:22.206px"><div class="tx c" data-dy="-1.8969" style="font-size:18.969px;line-height:26px"><div class="ln">Since <span class="k">11/11/2011</span></div></div></div>
   </div>
 </div></section>
 
@@ -530,9 +443,9 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1440" data-y="330" data-s="44" style="--dr:10deg;animation-delay:-2.6s" aria-hidden="true"><use href="#i-sprout"/></svg>
   <svg class="doodle soft" data-x="150" data-y="520" data-s="42" style="--dr:7deg;animation-delay:-3.8s" aria-hidden="true"><use href="#i-people"/></svg>
   <svg class="doodle soft" data-x="1430" data-y="540" data-s="40" style="--dr:-6deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-cross"/></svg>
-  <div class="el" style="left:510.131px;top:76.8px;width:579.738px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Vision</span></div></div></div>
-  <div class="el" style="left:291.273px;top:286.781px;width:1017.453px;height:310.364px;--o:2">
-    <div class="tx c" data-t="body" data-dy="-3.81823" style="font-size:38.1823px;line-height:53px">
+  <div class="el" style="left:510.131px;top:76.8px;width:579.738px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Vision</span></div></div></div>
+  <div class="el" style="left:291.273px;top:286.781px;width:1017.453px;height:310.364px">
+    <div class="tx c" data-dy="-3.81823" style="font-size:38.1823px;line-height:53px">
       <div class="ln">“To cultivate a strong spirit of <span class="k">volunteering</span>, foster</div>
       <div class="ln">continuous <span class="k">self-development</span>, support <span class="k">pharmacy</span></div>
       <div class="ln"><span class="k">students</span>, bridge the gap between students and</div>
@@ -549,22 +462,22 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1470" data-y="120" data-s="44" style="--dr:12deg;animation-delay:-2.1s" aria-hidden="true"><use href="#i-tree"/></svg>
   <svg class="doodle soft" data-x="110" data-y="330" data-s="40" style="--dr:8deg;animation-delay:-3.5s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="1480" data-y="340" data-s="38" style="--dr:-7deg;animation-delay:-1.6s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:340.926px;top:76.8px;width:918.148px;height:126.781px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Why <span class="k">EPSF-Alex?</span></div></div></div>
-  <div class="el" style="left:214.306px;top:213.883px;width:1171.389px;height:359.325px;--o:2">
-    <div class="tx" data-t="body" data-dy="-2.97096" style="font-size:29.7096px;line-height:41px">
+  <div class="el" style="left:340.926px;top:76.8px;width:918.148px;height:126.781px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Why <span class="k">EPSF-Alex?</span></div></div></div>
+  <div class="el" style="left:214.306px;top:213.883px;width:1171.389px;height:359.325px">
+    <div class="tx" data-dy="-2.97096" style="font-size:29.7096px;line-height:41px">
       <div class="ln">For years, <span class="k">EPSF-Alex</span> has been a place where passion meets purpose.</div>
       <div class="ln">Through impactful events, professional development opportunities,</div>
       <div class="ln">creative initiatives, and countless student experiences, we’ve built a legacy</div>
       <div class="ln">of leadership, learning, connection, and impact.</div>
-      <div class="ln sp">&nbsp;</div>
+      <div class="ln">&nbsp;</div>
       <div class="ln">Supported by the Faculty of Pharmacy – Alexandria University and driven</div>
       <div class="ln">by generations of passionate students, <span class="k">EPSF-Alex</span> continues to grow,</div>
       <div class="ln">inspire, and create opportunities for every new generation.</div>
     </div>
   </div>
-  <div class="el" style="left:382.794px;top:573.207px;width:834.413px;height:149.736px;--o:3">
-    <div class="tx c k" data-t="label" data-dy="1.86812" style="font-size:53.3749px;line-height:60px">
-      <div class="ln">More than an association.</div><div class="ln sp" style="line-height:26px">&nbsp;</div><div class="ln">A legacy built by generations.</div>
+  <div class="el" style="left:382.794px;top:573.207px;width:834.413px;height:149.736px">
+    <div class="tx c k" data-dy="1.86812" style="font-size:53.3749px;line-height:60px">
+      <div class="ln">More than an association.</div><div class="ln" style="line-height:26px">&nbsp;</div><div class="ln">A legacy built by generations.</div>
     </div>
   </div>
 </div></section>
@@ -575,18 +488,18 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="778" data-y="580" data-s="44" style="--dr:9deg;animation-delay:-2.7s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="110" data-y="420" data-s="44" style="--dr:6deg;animation-delay:-3.9s" aria-hidden="true"><use href="#i-pulse"/></svg>
   <svg class="doodle soft" data-x="1470" data-y="420" data-s="40" style="--dr:-6deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-cross"/></svg>
-  <div class="el" style="left:340.926px;top:76.8px;width:918.148px;height:126.781px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Why <span class="k">EPSF-Alex?</span></div></div></div>
-  <div class="el" style="left:580.6px;top:311.339px;width:438.8px;height:63.736px;--o:2"><div class="tx c k" data-t="label" data-dy="1.86812" style="font-size:53.3749px;line-height:60px"><div class="ln">Blood Donation</div></div></div>
-  <div class="chip" style="--o:3">
-    <div class="rect" style="left:303.504px;top:224.428px;width:265.867px;height:86.911px"></div>
-    <div class="el" style="left:373.835px;top:231.322px;width:125.206px;height:73.125px"><div class="tx c wh" data-t="year" data-dy="2.143" style="font-size:61.2278px;line-height:68.8386px"><div class="ln">2011</div></div></div>
-  </div>
-  <div class="chip" style="--o:4">
+  <div class="chip">
     <div class="rect" style="left:1030.63px;top:224.428px;width:265.867px;height:86.911px"></div>
-    <div class="el" style="left:1087.46px;top:231.322px;width:152.21px;height:73.125px"><div class="tx c wh" data-t="year" data-dy="2.143" style="font-size:61.2278px;line-height:68.8386px"><div class="ln">2026</div></div></div>
+    <div class="el" style="left:1087.46px;top:231.322px;width:152.21px;height:73.125px"><div class="tx c wh" data-dy="2.143" style="font-size:61.2278px;line-height:68.8386px"><div class="ln">2026</div></div></div>
   </div>
-  <div class="ph" style="left:223.297px;top:393px;width:426.283px;height:326.565px;border-radius:28px;--o:5"><img src="assets/images/2025-2026/e72e5939c1efff5a6570f3e9cfa134e2.jpg" alt="Blood donation campaign 2011" loading="lazy" decoding="async" style="object-position:0% 50%"/></div>
-  <div class="ph" style="left:945.852px;top:393px;width:435.42px;height:326.565px;border-radius:28px;--o:6"><img src="assets/images/2025-2026/f700e8ef6ed8da9dec3e6024b738a556.jpg" alt="Blood donation campaign 2026" loading="lazy" decoding="async"/></div>
+  <div class="chip">
+    <div class="rect" style="left:303.504px;top:224.428px;width:265.867px;height:86.911px"></div>
+    <div class="el" style="left:373.835px;top:231.322px;width:125.206px;height:73.125px"><div class="tx c wh" data-dy="2.143" style="font-size:61.2278px;line-height:68.8386px"><div class="ln">2011</div></div></div>
+  </div>
+  <div class="ph" style="left:945.852px;top:393px;width:435.42px;height:326.565px;border-radius:28px"><img src="assets/images/2025-2026/f700e8ef6ed8da9dec3e6024b738a556.jpg" alt="Blood donation campaign 2026" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:223.297px;top:393px;width:426.283px;height:326.565px;border-radius:28px"><img src="assets/images/2025-2026/e72e5939c1efff5a6570f3e9cfa134e2.jpg" alt="Blood donation campaign 2011" loading="lazy" decoding="async" style="object-position:0% 50%"/></div>
+  <div class="el" style="left:340.926px;top:76.8px;width:918.148px;height:126.781px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Why <span class="k">EPSF-Alex?</span></div></div></div>
+  <div class="el" style="left:580.6px;top:311.339px;width:438.8px;height:63.736px"><div class="tx c k" data-dy="1.86812" style="font-size:53.3749px;line-height:60px"><div class="ln">Blood Donation</div></div></div>
 </div></section>
 
 <!-- 8 · STEP ON THE WAY PHOTOS -->
@@ -595,9 +508,9 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="778" data-y="460" data-s="44" style="--dr:11deg;animation-delay:-2.3s" aria-hidden="true"><use href="#i-flag"/></svg>
   <svg class="doodle soft" data-x="120" data-y="180" data-s="44" style="--dr:7deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-comp"/></svg>
   <svg class="doodle soft" data-x="1460" data-y="180" data-s="44" style="--dr:-7deg;animation-delay:-1.4s" aria-hidden="true"><use href="#i-cap"/></svg>
-  <div class="el" style="left:559.306px;top:169.45px;width:481.388px;height:63.736px;--o:1"><div class="tx c k" data-t="label" data-dy="1.86812" style="font-size:53.3749px;line-height:60px"><div class="ln">Step On The Way</div></div></div>
-  <div class="ph" style="left:217.808px;top:272.171px;width:435.42px;height:326.379px;border-radius:28px;--o:2"><img src="assets/images/2025-2026/c3c0e4a8095bbc00709137f635896779.jpg" alt="Step On The Way conference" loading="lazy" decoding="async" style="object-position:27.4% 50%"/></div>
-  <div class="ph" style="left:938.205px;top:268.465px;width:443.987px;height:326.565px;border-radius:28px;--o:3"><img src="assets/images/2025-2026/48e70303692adb375234810026553124.jpg" alt="Step On The Way session" loading="lazy" decoding="async" style="object-position:0% 50%"/></div>
+  <div class="ph" style="left:217.808px;top:272.171px;width:435.42px;height:326.379px;border-radius:28px"><img src="assets/images/2025-2026/c3c0e4a8095bbc00709137f635896779.jpg" alt="Step On The Way conference" loading="lazy" decoding="async" style="object-position:27.4% 50%"/></div>
+  <div class="ph" style="left:938.205px;top:268.465px;width:443.987px;height:326.565px;border-radius:28px"><img src="assets/images/2025-2026/48e70303692adb375234810026553124.jpg" alt="Step On The Way session" loading="lazy" decoding="async" style="object-position:0% 50%"/></div>
+  <div class="el" style="left:559.306px;top:169.45px;width:481.388px;height:63.736px"><div class="tx c k" data-dy="1.86812" style="font-size:53.3749px;line-height:60px"><div class="ln">Step On The Way</div></div></div>
 </div></section>
 
 <!-- 9 · JOB FAIR -->
@@ -606,12 +519,12 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="860" data-y="650" data-s="40" style="--dr:12deg;animation-delay:-2.8s" aria-hidden="true"><use href="#i-clip"/></svg>
   <svg class="doodle soft" data-x="95" data-y="150" data-s="44" style="--dr:8deg;animation-delay:-3.3s" aria-hidden="true"><use href="#i-cap"/></svg>
   <svg class="doodle soft" data-x="1465" data-y="150" data-s="44" style="--dr:-6deg;animation-delay:-1.7s" aria-hidden="true"><use href="#i-people"/></svg>
-  <div class="el" style="left:665.337px;top:132.3px;width:221.063px;height:63.736px;--o:1"><div class="tx c k" data-t="label" data-dy="1.86812" style="font-size:53.3749px;line-height:60px"><div class="ln">Job Fair</div></div></div>
-  <div class="ph" style="left:173.661px;top:61.798px;width:376.459px;height:336.46px;border-radius:50px;--o:2"><img src="assets/images/2025-2026/538ff3c0d2203fdb252cc3dd6198014c.png" alt="Job Fair poster" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:1001.62px;top:42.379px;width:399.153px;height:355.878px;border-radius:49px;--o:3"><img src="assets/images/2025-2026/6cd23df0dded4c315409dfa6645de39e.jpg" alt="Job Fair attendees" loading="lazy" decoding="async" style="object-position:0% 50%"/></div>
-  <div class="ph" data-wide style="left:587.981px;top:277.202px;width:386.641px;height:294.999px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/785cdb6d3746cb50b7499264ac5d024e.png" alt="Job Fair logo" loading="lazy" decoding="async" style="object-position:100% 50%"/></div>
-  <div class="ph" style="left:173.661px;top:441.435px;width:376.459px;height:326.565px;border-radius:51px;--o:5"><img src="assets/images/2025-2026/8e25385d7d72d6c3e63fefc4b8ef497d.jpg" alt="Job Fair floor" loading="lazy" decoding="async" style="object-position:34.6% 50%"/></div>
-  <div class="ph" style="left:1001.62px;top:426.363px;width:399.153px;height:341.637px;border-radius:50px;--o:6"><img src="assets/images/2025-2026/d837796e4c66beba9e8d622ad98d2140.png" alt="Job Fair branding" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:173.661px;top:441.435px;width:376.459px;height:326.565px;border-radius:51px"><img src="assets/images/2025-2026/8e25385d7d72d6c3e63fefc4b8ef497d.jpg" alt="Job Fair floor" loading="lazy" decoding="async" style="object-position:34.6% 50%"/></div>
+  <div class="ph" style="left:173.661px;top:61.798px;width:376.459px;height:336.46px;border-radius:50px"><img src="assets/images/2025-2026/538ff3c0d2203fdb252cc3dd6198014c.png" alt="Job Fair poster" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1001.62px;top:426.363px;width:399.153px;height:341.637px;border-radius:50px"><img src="assets/images/2025-2026/d837796e4c66beba9e8d622ad98d2140.png" alt="Job Fair branding" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1001.62px;top:42.379px;width:399.153px;height:355.878px;border-radius:49px"><img src="assets/images/2025-2026/6cd23df0dded4c315409dfa6645de39e.jpg" alt="Job Fair attendees" loading="lazy" decoding="async" style="object-position:0% 50%"/></div>
+  <div class="ph" style="left:587.981px;top:277.202px;width:386.641px;height:294.999px;border-radius:50px"><img src="assets/images/2025-2026/785cdb6d3746cb50b7499264ac5d024e.png" alt="Job Fair logo" loading="lazy" decoding="async" style="object-position:100% 50%"/></div>
+  <div class="el" style="left:665.337px;top:132.3px;width:221.063px;height:63.736px"><div class="tx c k" data-dy="1.86812" style="font-size:53.3749px;line-height:60px"><div class="ln">Job Fair</div></div></div>
 </div></section>
 
 <!-- 10 · HIGHLIGHTS -->
@@ -620,19 +533,19 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="300" data-s="44" style="--dr:10deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-flag"/></svg>
   <svg class="doodle" data-x="752" data-y="540" data-s="46" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-spark"/></svg>
   <svg class="doodle soft" data-x="836" data-y="650" data-s="40" style="--dr:-7deg;animation-delay:-1.1s" aria-hidden="true"><use href="#i-globe"/></svg>
-  <div class="el" style="left:391.375px;top:76.8px;width:817.25px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our<span class="k"> Highlights</span></div></div></div>
-  <div class="card" style="--o:2">
+  <div class="card">
     <div class="rect" style="left:576.237px;top:227.221px;width:447.526px;height:235.105px"></div>
-    <div class="el" style="left:592.333px;top:253.04px;width:404.912px;height:183.467px"><div class="tx c wh" data-t="stat" data-dy="2.7888" style="font-size:79.6805px;line-height:88.9448px"><div class="ln"><span data-count="15">15</span> Years</div><div class="ln">of History</div></div></div>
+    <div class="el" style="left:592.333px;top:253.04px;width:404.912px;height:183.467px"><div class="tx c wh" data-dy="2.7888" style="font-size:79.6805px;line-height:88.9448px"><div class="ln"><span data-count="15">15</span> Years</div><div class="ln">of History</div></div></div>
   </div>
-  <div class="card half" style="--o:3">
+  <div class="card">
     <div class="rect" style="left:253.836px;top:511.325px;width:352.206px;height:185.029px"></div>
-    <div class="el" style="left:307.069px;top:531.645px;width:245.741px;height:144.39px"><div class="tx c wh" data-t="stat" data-dy="2.19478" style="font-size:62.708px;line-height:70px"><div class="ln"><span data-count="45">45</span>+</div><div class="ln">Awards</div></div></div>
+    <div class="el" style="left:307.069px;top:531.645px;width:245.741px;height:144.39px"><div class="tx c wh" data-dy="2.19478" style="font-size:62.708px;line-height:70px"><div class="ln"><span data-count="45">45</span>+</div><div class="ln">Awards</div></div></div>
   </div>
-  <div class="card half" style="--o:4">
+  <div class="card">
     <div class="rect" style="left:993.958px;top:511.325px;width:352.206px;height:185.029px"></div>
-    <div class="el" style="left:1024.02px;top:531.645px;width:292.083px;height:144.39px"><div class="tx c wh" data-t="stat" data-dy="2.19478" style="font-size:62.708px;line-height:70px"><div class="ln"><span data-count="15">15</span>+</div><div class="ln">Hostings</div></div></div>
+    <div class="el" style="left:1024.02px;top:531.645px;width:292.083px;height:144.39px"><div class="tx c wh" data-dy="2.19478" style="font-size:62.708px;line-height:70px"><div class="ln"><span data-count="15">15</span>+</div><div class="ln">Hostings</div></div></div>
   </div>
+  <div class="el" style="left:391.375px;top:76.8px;width:817.25px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our<span class="k"> Highlights</span></div></div></div>
 </div></section>
 
 <!-- 11 · ROLE MODELS -->
@@ -642,7 +555,7 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1240" data-y="330" data-s="52" style="--dr:11deg;animation-delay:-3.5s" aria-hidden="true"><use href="#i-cap"/></svg>
   <svg class="doodle soft" data-x="500" data-y="560" data-s="40" style="--dr:-8deg;animation-delay:-1.5s" aria-hidden="true"><use href="#i-spark"/></svg>
   <svg class="doodle soft" data-x="1050" data-y="560" data-s="40" style="--dr:9deg;animation-delay:-4.2s" aria-hidden="true"><use href="#i-heart"/></svg>
-  <div class="el" style="left:343.056px;top:76.8px;width:913.888px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Role Models</span></div></div></div>
+  <div class="el" style="left:343.056px;top:76.8px;width:913.888px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Role Models</span></div></div></div>
 </div></section>
 
 <!-- 12 · COMMITTEES -->
@@ -651,20 +564,20 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="260" data-y="620" data-s="46" style="--dr:12deg;animation-delay:-2.2s" aria-hidden="true"><use href="#i-box"/></svg>
   <svg class="doodle" data-x="720" data-y="650" data-s="42" style="--dr:7deg;animation-delay:-3.4s" aria-hidden="true"><use href="#i-clip"/></svg>
   <svg class="doodle soft" data-x="1495" data-y="430" data-s="40" style="--dr:-7deg;animation-delay:-1.6s" aria-hidden="true"><use href="#i-rings"/></svg>
-  <div class="el" style="left:341.363px;top:76.8px;width:917.275px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Committees</span></div></div></div>
-  <div class="el" style="left:115px;top:257.977px;width:404.836px;height:45.316px;--o:2"><div class="tx c" data-t="sub" data-dy="-3.84088" style="font-size:38.4088px;line-height:53px"><div class="ln"><span class="k">High </span>Board</div></div></div>
-  <div class="pill" style="left:154.282px;top:336.555px;width:326.271px;height:55.002px;--o:3"><span>Secretary General</span></div>
-  <a class="pill" style="left:154.282px;top:410.109px;width:326.271px;height:55.002px;--o:4" href="#page-5"><span>Treasurer</span></a>
-  <div class="el" style="left:536.012px;top:257.977px;width:404.836px;height:45.318px;--o:5"><div class="tx c" data-t="sub" data-dy="-3.84088" style="font-size:38.4088px;line-height:53px"><div class="ln"><span class="k">Project </span>Committees</div></div></div>
-  <a class="pill" style="left:609.696px;top:336.331px;width:307.728px;height:55.001px;--o:6" href="#page-6"><span>Pharmacy Education</span></a>
-  <a class="pill" style="left:609.696px;top:409.886px;width:307.728px;height:55.001px;--o:7" href="#page-7"><span>Public Health</span></a>
-  <a class="pill" style="left:600.424px;top:483.887px;width:326.271px;height:55.002px;--o:8" href="#page-8"><span>Local Exchange Office</span></a>
-  <div class="el" style="left:986.281px;top:257.977px;width:496.719px;height:45.318px;--o:9"><div class="tx c" data-t="sub" data-dy="-3.84088" style="font-size:38.4088px;line-height:53px"><div class="ln"><span class="k">Supportive </span>Committees</div></div></div>
-  <a class="pill" style="left:1083.66px;top:336.42px;width:352.915px;height:55.138px;--o:10" href="#page-9"><span>Logistics and Organizing</span></a>
-  <a class="pill" style="left:1088.3px;top:410.112px;width:343.643px;height:56.026px;--o:11" href="#page-a"><span>Human Resources</span></a>
-  <a class="pill" style="left:1088.3px;top:485.138px;width:334.957px;height:55.139px;--o:12" href="#page-b"><span>External Relations</span></a>
-  <a class="pill" style="left:1092.64px;top:559.277px;width:326.271px;height:55.139px;--o:13" href="#page-c"><span>Marketing</span></a>
-  <a class="pill" style="left:1088.3px;top:633.417px;width:330.614px;height:55.25px;--o:14" href="#page-d"><span>Media and Publications</span></a>
+  <div class="el" style="left:341.363px;top:76.8px;width:917.275px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Committees</span></div></div></div>
+  <div class="el" style="left:115px;top:257.977px;width:404.836px;height:45.316px"><div class="tx c" data-dy="-3.84088" style="font-size:38.4088px;line-height:53px"><div class="ln"><span class="k">High </span>Board</div></div></div>
+  <div class="el" style="left:536.012px;top:257.977px;width:404.836px;height:45.318px"><div class="tx c" data-dy="-3.84088" style="font-size:38.4088px;line-height:53px"><div class="ln"><span class="k">Project </span>Committees</div></div></div>
+  <div class="el" style="left:986.281px;top:257.977px;width:496.719px;height:45.318px"><div class="tx c" data-dy="-3.84088" style="font-size:38.4088px;line-height:53px"><div class="ln"><span class="k">Supportive </span>Committees</div></div></div>
+  <div class="pill" style="left:154.282px;top:336.555px;width:326.271px;height:55.002px"><span>Secretary General</span></div>
+  <a class="pill" style="left:154.282px;top:410.109px;width:326.271px;height:55.002px" href="#page-5"><span>Treasurer</span></a>
+  <a class="pill" style="left:609.696px;top:336.331px;width:307.728px;height:55.001px" href="#page-6"><span>Pharmacy Education</span></a>
+  <a class="pill" style="left:609.696px;top:409.886px;width:307.728px;height:55.001px" href="#page-7"><span>Public Health</span></a>
+  <a class="pill" style="left:600.424px;top:483.887px;width:326.271px;height:55.002px" href="#page-8"><span>Local Exchange Office</span></a>
+  <a class="pill" style="left:1083.66px;top:336.42px;width:352.915px;height:55.138px" href="#page-9"><span>Logistics and Organizing</span></a>
+  <a class="pill" style="left:1088.3px;top:410.112px;width:343.643px;height:56.026px" href="#page-a"><span>Human Resources</span></a>
+  <a class="pill" style="left:1088.3px;top:485.138px;width:334.957px;height:55.139px" href="#page-b"><span>External Relations</span></a>
+  <a class="pill" style="left:1092.64px;top:559.277px;width:326.271px;height:55.139px" href="#page-c"><span>Marketing</span></a>
+  <a class="pill" style="left:1088.3px;top:633.417px;width:330.614px;height:55.25px" href="#page-d"><span>Media and Publications</span></a>
 </div></section>
 
 <!-- 13 · SECRETARY GENERAL -->
@@ -673,11 +586,14 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1490" data-y="120" data-s="44" style="--dr:13deg;animation-delay:-2.6s" aria-hidden="true"><use href="#i-pen"/></svg>
   <svg class="doodle soft" data-x="75" data-y="330" data-s="42" style="--dr:7deg;animation-delay:-3.8s" aria-hidden="true"><use href="#i-shield"/></svg>
   <svg class="doodle soft" data-x="1495" data-y="340" data-s="40" style="--dr:-6deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-book"/></svg>
-  <div class="el" style="left:461.005px;top:62.261px;width:628.542px;height:126.781px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">High </span>Board</div></div></div>
-  <div class="el" style="left:555.217px;top:189.044px;width:489.566px;height:48.836px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.08188" style="font-size:40.8188px;line-height:57px"><div class="ln">1.Secretrary General</div></div></div>
-  <div class="el" style="left:172.718px;top:257.284px;width:1259.199px;height:298.522px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.73878" style="font-size:27.3878px;line-height:38px">
-      <div class="ln k">Main Responsibilities of the <span style="color:#000">Sec-Gen</span>:</div>
+  <div class="ph" style="left:555.217px;top:493.267px;width:367.652px;height:275.739px;border-radius:49px"><img src="assets/images/2025-2026/5df50375ee7f229c097b8a959e1a4672.jpg" alt="Secretary General team" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:167.886px;top:531.544px;width:356.331px;height:237.461px;border-radius:49px"><img src="assets/images/2025-2026/0fcf1f4eaf798fff89d3d7975f4a42b6.jpg" alt="Secretary General session" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:953.694px;top:481.374px;width:452.506px;height:287.631px;border-radius:50px"><div style="position:absolute;left:-52.3352px;top:-5.96483px;width:587.302px;height:440.476px;transform:rotate(1.2deg)"><img src="assets/images/2025-2026/136f122a76c60e84dd719b5ca5412173.jpg" alt="Secretary General meeting" loading="lazy" decoding="async"/></div></div>
+  <div class="el" style="left:461.005px;top:62.261px;width:628.542px;height:126.781px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">High </span>Board</div></div></div>
+  <div class="el" style="left:555.217px;top:189.044px;width:489.566px;height:48.836px"><div class="tx k" data-dy="-4.08188" style="font-size:40.8188px;line-height:57px"><div class="ln">1.Secretrary General</div></div></div>
+  <div class="el" style="left:172.718px;top:257.284px;width:1259.199px;height:298.522px">
+    <div class="tx" data-dy="-2.73878" style="font-size:27.3878px;line-height:38px">
+      <div class="ln k">&nbsp;&nbsp;&nbsp;Main Responsibilities of the <span style="color:#000">Sec-Gen</span>:</div>
       <ul class="d" style="color:#0053cd">
         <li><div class="ln"><span style="color:#000">Sec-Gen: </span>Ensuring proper governance, official communication, documentation<span style="color:#000">, and</span></div><div class="ln">quality control<span style="color:#000"> while supporting </span>GAs<span style="color:#000"> and building members’ </span>GA mentality<span style="color:#000">.</span></div></li>
         <li><div class="ln"><span style="color:#000">Developing members’ skills in </span>professional writing, proofreading, organization, and</div><div class="ln">constitutional<span style="color:#000"> awareness.</span></div></li>
@@ -685,9 +601,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       </ul>
     </div>
   </div>
-  <div class="ph" style="left:167.886px;top:531.544px;width:356.331px;height:237.461px;border-radius:49px;--o:4"><img src="assets/images/2025-2026/0fcf1f4eaf798fff89d3d7975f4a42b6.jpg" alt="Secretary General session" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:555.217px;top:493.267px;width:367.652px;height:275.739px;border-radius:49px;--o:5"><img src="assets/images/2025-2026/5df50375ee7f229c097b8a959e1a4672.jpg" alt="Secretary General team" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:953.694px;top:481.374px;width:452.506px;height:287.631px;border-radius:50px;--o:6"><div style="position:absolute;left:-52.3352px;top:-5.96483px;width:587.302px;height:440.476px;transform:rotate(1.2deg)"><img src="assets/images/2025-2026/136f122a76c60e84dd719b5ca5412173.jpg" alt="Secretary General meeting" loading="lazy" decoding="async"/></div></div>
 </div></section>
 
 <!-- 14 · TREASURER -->
@@ -696,10 +609,12 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1470" data-y="140" data-s="46" style="--dr:11deg;animation-delay:-2.3s" aria-hidden="true"><use href="#i-chart"/></svg>
   <svg class="doodle" data-x="760" data-y="560" data-s="52" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-coins"/></svg>
   <svg class="doodle soft" data-x="860" data-y="650" data-s="40" style="--dr:-7deg;animation-delay:-1.4s" aria-hidden="true"><use href="#i-chart"/></svg>
-  <div class="el" style="left:461.638px;top:45.894px;width:628.538px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">High </span>Board</div></div></div>
-  <div class="el" style="left:656.591px;top:172.677px;width:260.863px;height:50.57px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.21521" style="font-size:42.1521px;line-height:59px"><div class="ln">2.Treasurer</div></div></div>
-  <div class="el" style="left:195.75px;top:238.701px;width:1198.262px;height:222.547px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.72675" style="font-size:27.2675px;line-height:38px">
+  <div class="ph" style="left:970.447px;top:416.831px;width:263.377px;height:351.169px;border-radius:50px"><img src="assets/images/2025-2026/2b2a540f90eef7f05fa65bb1f0e7b40f.jpg" alt="Treasurer" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:206.21px;top:466.721px;width:401.705px;height:301.279px;border-radius:50px"><img src="assets/images/2025-2026/0ad64b393ed470348d4b30c65dc65334.jpg" alt="Treasurer workshop" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:461.638px;top:45.894px;width:628.538px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">High </span>Board</div></div></div>
+  <div class="el" style="left:656.591px;top:172.677px;width:260.863px;height:50.57px"><div class="tx k" data-dy="-4.21521" style="font-size:42.1521px;line-height:59px"><div class="ln">2.Treasurer</div></div></div>
+  <div class="el" style="left:195.75px;top:238.701px;width:1198.262px;height:222.547px">
+    <div class="tx" data-dy="-2.72675" style="font-size:27.2675px;line-height:38px">
       <ul class="d" style="color:#0053cd">
         <li><div class="ln"><span class="i">Treasurer: Managing and planning </span><span class="k">finances</span><span class="i"> while developing members’ skills in</span></div><div class="ln"><span class="k">financial analysis, Excel, decision-making</span><span class="i">, and </span><span class="k">problem-solving</span><span class="i">.</span></div></li>
         <li><div class="ln"><span class="i">Members learn to</span><span class="k"> track budgets, forecast income</span><span class="i"> and </span><span class="k">expenses</span><span class="i">, and make</span></div><div class="ln"><span class="i">informed </span><span class="k">financial decisions</span><span class="i">.</span></div></li>
@@ -707,8 +622,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       </ul>
     </div>
   </div>
-  <div class="ph" style="left:206.21px;top:466.721px;width:401.705px;height:301.279px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/0ad64b393ed470348d4b30c65dc65334.jpg" alt="Treasurer workshop" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:970.447px;top:416.831px;width:263.377px;height:351.169px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/2b2a540f90eef7f05fa65bb1f0e7b40f.jpg" alt="Treasurer" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 15 · PHARMACY EDUCATION -->
@@ -717,12 +630,14 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1440" data-y="110" data-s="44" style="--dr:12deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-flask"/></svg>
   <svg class="doodle" data-x="740" data-y="540" data-s="52" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-cap"/></svg>
   <svg class="doodle soft" data-x="770" data-y="660" data-s="38" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:245.406px;top:76.8px;width:1109.188px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Project</span> Committees</div></div></div>
-  <div class="el" style="left:533.583px;top:203.583px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">1.Pharmacy Education</div></div></div>
-  <div class="el" style="left:193.8px;top:272.764px;width:1289.2px;height:182.206px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.7209" style="font-size:27.2091px;line-height:37.5296px">
-      <div class="ln"><span class="i">PE</span> is dedicated to<span class="k"> empowering </span>pharmacy students</div>
-      <div class="ln">and community through :</div>
+  <div class="ph" style="left:209.676px;top:470.97px;width:449.508px;height:292.423px;border-radius:50px"><img src="assets/images/2025-2026/6c0d9793b48f3d335ccbb5cec9f9c6e9.jpg" alt="Pharmacy Education program" loading="lazy" decoding="async" style="object-position:17.5% 35.2%"/></div>
+  <div class="ph" style="left:863.429px;top:470.43px;width:390.617px;height:292.963px;border-radius:50px"><img src="assets/images/2025-2026/ec1fe2b33153be97266f9a6cdb51ef7d.jpg" alt="Pharmacy Education competition" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:245.406px;top:76.8px;width:1109.188px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Project</span> Committees</div></div></div>
+  <div class="el" style="left:533.583px;top:203.583px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">1.Pharmacy Education</div></div></div>
+  <div class="el" style="left:193.8px;top:272.764px;width:1289.2px;height:182.206px">
+    <div class="tx" data-dy="-2.7209" style="font-size:27.2091px;line-height:37.5296px">
+      <div class="ln">&nbsp;&nbsp;<span class="i">PE</span> is dedicated to<span class="k"> empowering </span>pharmacy students</div>
+      <div class="ln">&nbsp;&nbsp;&nbsp;and community through :</div>
       <ul class="d" style="color:#0053cd">
         <li><div class="ln">Educational programs, conferences, and competitions.</div></li>
         <li><div class="ln">Developing pharmaceutical knowledge, research skills, and personal competencies.</div></li>
@@ -730,8 +645,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       </ul>
     </div>
   </div>
-  <div class="ph" style="left:209.676px;top:470.97px;width:449.508px;height:292.423px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/6c0d9793b48f3d335ccbb5cec9f9c6e9.jpg" alt="Pharmacy Education program" loading="lazy" decoding="async" style="object-position:17.5% 35.2%"/></div>
-  <div class="ph" style="left:863.429px;top:470.43px;width:390.617px;height:292.963px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/ec1fe2b33153be97266f9a6cdb51ef7d.jpg" alt="Pharmacy Education competition" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 16 · PUBLIC HEALTH -->
@@ -740,10 +653,12 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="44" style="--dr:12deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-drop"/></svg>
   <svg class="doodle" data-x="110" data-y="580" data-s="48" style="--dr:8deg;animation-delay:-3.8s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="760" data-y="560" data-s="44" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-shield"/></svg>
-  <div class="el" style="left:245.406px;top:76.8px;width:1109.188px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Project</span> Committees</div></div></div>
-  <div class="el" style="left:621.665px;top:203.583px;width:356.671px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">2.Public Health</div></div></div>
-  <div class="el" style="left:214.306px;top:277.151px;width:1215.074px;height:222.546px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.727" style="font-size:27.27px;line-height:38px">
+  <div class="ph" style="left:841.326px;top:440.575px;width:436.567px;height:327.425px;border-radius:50px"><img src="assets/images/2025-2026/5215f80991bae28017cf8d1c18e7c7a9.jpg" alt="Public Health campaign" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:277.841px;top:465.526px;width:453.889px;height:302.475px;border-radius:50px"><img src="assets/images/2025-2026/051b75d9d38a635a0f48f93761c2c17a.jpg" alt="Public Health convoy" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:245.406px;top:76.8px;width:1109.188px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Project</span> Committees</div></div></div>
+  <div class="el" style="left:621.665px;top:203.583px;width:356.671px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">2.Public Health</div></div></div>
+  <div class="el" style="left:214.306px;top:277.151px;width:1215.074px;height:222.546px">
+    <div class="tx" data-dy="-2.727" style="font-size:27.27px;line-height:38px">
       <div class="ln k">PH is dedicated to creating healthier communities by:</div>
       <ul class="d" style="color:#000">
         <li><div class="ln"><span class="k">Blood donation</span> campaigns, medical <span class="k">convoys</span>, <span class="k">donations, environmental</span></div><div class="ln"><span class="k">initiatives</span>, and <span class="k">World Health Days</span>.</div></li>
@@ -751,8 +666,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       </ul>
     </div>
   </div>
-  <div class="ph" style="left:277.841px;top:465.526px;width:453.889px;height:302.475px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/051b75d9d38a635a0f48f93761c2c17a.jpg" alt="Public Health convoy" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:841.326px;top:440.575px;width:436.567px;height:327.425px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/5215f80991bae28017cf8d1c18e7c7a9.jpg" alt="Public Health campaign" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 17 · LOCAL EXCHANGE OFFICE -->
@@ -761,10 +674,13 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="46" style="--dr:13deg;animation-delay:-2.2s" aria-hidden="true"><use href="#i-plane"/></svg>
   <svg class="doodle" data-x="140" data-y="600" data-s="52" style="--dr:8deg;animation-delay:-3.5s" aria-hidden="true"><use href="#i-rings"/></svg>
   <svg class="doodle soft" data-x="1440" data-y="600" data-s="46" style="--dr:-7deg;animation-delay:-1.5s" aria-hidden="true"><use href="#i-people"/></svg>
-  <div class="el" style="left:245.406px;top:76.8px;width:1109.188px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Project</span> Committees</div></div></div>
-  <div class="el" style="left:510.404px;top:203.583px;width:579.193px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">3.Local Exchange Office</div></div></div>
-  <div class="el" style="left:226.383px;top:272.722px;width:1265.889px;height:222.557px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.72168" style="font-size:27.2168px;line-height:38px">
+  <div class="ph" style="left:342.196px;top:511.278px;width:342.296px;height:256.722px;border-radius:50px"><img src="assets/images/2025-2026/d9e43dc0f2a5f110f160b8743fc8dbff.jpg" alt="Local Exchange Office team" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:757.081px;top:511.278px;width:144.406px;height:256.722px;border-radius:50px"><img src="assets/images/2025-2026/f9ae808ab44fe97e030f65a7c60027f7.jpg" alt="Student Exchange Program" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:997.572px;top:495.278px;width:363.629px;height:272.722px;border-radius:50px"><img src="assets/images/2025-2026/5c4c42ac579b57edc82f03126d1cc924.jpg" alt="SEP national hosting" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:245.406px;top:76.8px;width:1109.188px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="k">Project</span> Committees</div></div></div>
+  <div class="el" style="left:510.404px;top:203.583px;width:579.193px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">3.Local Exchange Office</div></div></div>
+  <div class="el" style="left:226.383px;top:272.722px;width:1265.889px;height:222.557px">
+    <div class="tx" data-dy="-2.72168" style="font-size:27.2168px;line-height:38px">
       <div class="ln"><span class="i">LEO</span><span class="k"> relies on international networks and making life-changing experiences.</span></div>
       <ul class="d" style="color:#0053cd">
         <li><div class="ln"><span class="i">Pharmacy students </span>can find your chance with Student Exchange Program (SEP),</div><div class="ln">which is one of our most impactful initiatives, and we are looking for passionate</div><div class="ln">long-term projects for 3 phases (winter, summer, and reallocation).</div></li>
@@ -772,9 +688,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       </ul>
     </div>
   </div>
-  <div class="ph" style="left:342.196px;top:511.278px;width:342.296px;height:256.722px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/d9e43dc0f2a5f110f160b8743fc8dbff.jpg" alt="Local Exchange Office team" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:757.081px;top:511.278px;width:144.406px;height:256.722px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/f9ae808ab44fe97e030f65a7c60027f7.jpg" alt="Student Exchange Program" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:997.572px;top:495.278px;width:363.629px;height:272.722px;border-radius:50px;--o:6"><img src="assets/images/2025-2026/5c4c42ac579b57edc82f03126d1cc924.jpg" alt="SEP national hosting" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 18 · LOGISTICS AND ORGANIZING -->
@@ -783,10 +696,13 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1460" data-y="110" data-s="44" style="--dr:12deg;animation-delay:-2.6s" aria-hidden="true"><use href="#i-clip"/></svg>
   <svg class="doodle" data-x="150" data-y="600" data-s="50" style="--dr:8deg;animation-delay:-3.4s" aria-hidden="true"><use href="#i-box"/></svg>
   <svg class="doodle soft" data-x="1330" data-y="600" data-s="46" style="--dr:-7deg;animation-delay:-1.1s" aria-hidden="true"><use href="#i-flag"/></svg>
-  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px;--o:1"><div class="tx c" data-t="title" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
-  <div class="el" style="left:483.361px;top:188.368px;width:633.278px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">1.Logistics and Organizing</div></div></div>
-  <div class="el" style="left:198.215px;top:258.391px;width:1207.985px;height:222.535px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.73272" style="font-size:27.3272px;line-height:38px">
+  <div class="ph" style="left:339.886px;top:488.963px;width:357.241px;height:267.782px;border-radius:51px"><img src="assets/images/2025-2026/ca386f3807a66d318764db9ae6f32c25.jpg" alt="Logistics and Organizing team" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:761.716px;top:480.926px;width:155.148px;height:275.819px;border-radius:45px"><img src="assets/images/2025-2026/4699fde6f04c8e132663836c11f9eab6.jpg" alt="LOC on site" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1021.84px;top:503.937px;width:189.606px;height:252.808px;border-radius:50px"><img src="assets/images/2025-2026/8f86e146ec9100af8cdf98de92b1285e.jpg" alt="LOC member" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px"><div class="tx c" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
+  <div class="el" style="left:483.361px;top:188.368px;width:633.278px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">1.Logistics and Organizing</div></div></div>
+  <div class="el" style="left:198.215px;top:258.391px;width:1207.985px;height:222.535px">
+    <div class="tx" data-dy="-2.73272" style="font-size:27.3272px;line-height:38px">
       <ul class="d" style="color:#0053cd">
         <li><div class="ln"><span class="i">Logistics and organizing are mixed together and can’t be separated, but logistics</span></div><div class="ln"><span class="i">means management, and organizing means arranging everything needed for</span></div><div class="ln"><span class="i">the event.</span></div></li>
         <li><div class="ln"><span class="i">Helping members build important skills in </span><span class="k">planning, organizing, and reporting</span><span class="i">.</span></div></li>
@@ -794,9 +710,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       </ul>
     </div>
   </div>
-  <div class="ph" style="left:339.886px;top:488.963px;width:357.241px;height:267.782px;border-radius:51px;--o:4"><img src="assets/images/2025-2026/ca386f3807a66d318764db9ae6f32c25.jpg" alt="Logistics and Organizing team" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:761.716px;top:480.926px;width:155.148px;height:275.819px;border-radius:45px;--o:5"><img src="assets/images/2025-2026/4699fde6f04c8e132663836c11f9eab6.jpg" alt="LOC on site" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1021.84px;top:503.937px;width:189.606px;height:252.808px;border-radius:50px;--o:6"><img src="assets/images/2025-2026/8f86e146ec9100af8cdf98de92b1285e.jpg" alt="LOC member" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 19 · HUMAN RESOURCES -->
@@ -805,20 +718,20 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1460" data-y="105" data-s="44" style="--dr:11deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="85" data-y="300" data-s="42" style="--dr:7deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-rings"/></svg>
   <svg class="doodle soft" data-x="1480" data-y="300" data-s="38" style="--dr:-6deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px;--o:1"><div class="tx c" data-t="title" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
-  <div class="el" style="left:565.262px;top:178.368px;width:469.477px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">2.Human Resources</div></div></div>
-  <div class="el" style="left:198.711px;top:231.404px;width:1194.192px;height:260.542px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.72899" style="font-size:27.2899px;line-height:38px">
+  <div class="ph" style="left:193.8px;top:434.027px;width:404.611px;height:303.458px;border-radius:50px"><img src="assets/images/2025-2026/b0cf250a8ce4b48ded10ec4f2f9b6d1b.jpg" alt="Human Resources team" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:614.269px;top:434.027px;width:404.611px;height:303.458px;border-radius:50px"><img src="assets/images/2025-2026/f2fa40d80c2ee4ff154ead00bb15ee95.jpg" alt="Human Resources education team" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1034.74px;top:434.027px;width:404.611px;height:303.458px;border-radius:50px"><img src="assets/images/2025-2026/dca3c49559a28943593befd0eb966dbf.jpg" alt="Human Resources spirit-up" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px"><div class="tx c" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
+  <div class="el" style="left:565.262px;top:178.368px;width:469.477px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">2.Human Resources</div></div></div>
+  <div class="el" style="left:198.711px;top:231.404px;width:1194.192px;height:260.542px">
+    <div class="tx" data-dy="-2.72899" style="font-size:27.2899px;line-height:38px">
       <div class="ln">HR Committee is the core of the <span class="k">internal stability, development</span>, and <span class="k">spirit</span> of our</div>
       <div class="ln">community through different teams</div>
-      <div class="ln bl"><span class="k">Follow-up Team: </span>Member follow-up, feedback, guidance, and growth.</div>
-      <div class="ln bl"><span class="k">Education Team: </span>Developing members’ soft skills through educational activities.</div>
-      <div class="ln bl"><span class="k">Spirit-up Team: </span>Strengthening bonds through social activities and outings.</div>
+      <div class="ln"><span class="k">Follow-up Team: </span>Member follow-up, feedback, guidance, and growth.</div>
+      <div class="ln"><span class="k">Education Team: </span>Developing members’ soft skills through educational activities.</div>
+      <div class="ln"><span class="k">Spirit-up Team: </span>Strengthening bonds through social activities and outings.</div>
     </div>
   </div>
-  <div class="ph" style="left:193.8px;top:434.027px;width:404.611px;height:303.458px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/b0cf250a8ce4b48ded10ec4f2f9b6d1b.jpg" alt="Human Resources team" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:614.269px;top:434.027px;width:404.611px;height:303.458px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/f2fa40d80c2ee4ff154ead00bb15ee95.jpg" alt="Human Resources education team" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1034.74px;top:434.027px;width:404.611px;height:303.458px;border-radius:50px;--o:6"><img src="assets/images/2025-2026/dca3c49559a28943593befd0eb966dbf.jpg" alt="Human Resources spirit-up" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 20 · EXTERNAL RELATIONS -->
@@ -827,19 +740,19 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1460" data-y="105" data-s="44" style="--dr:12deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-spark"/></svg>
   <svg class="doodle" data-x="1420" data-y="320" data-s="46" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-mega"/></svg>
   <svg class="doodle soft" data-x="75" data-y="560" data-s="44" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-people"/></svg>
-  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px;--o:1"><div class="tx c" data-t="title" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
-  <div class="el" style="left:565.262px;top:188.368px;width:469.477px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">3.External Relations</div></div></div>
-  <div class="el" style="left:219.317px;top:267.432px;width:1108.17px;height:158.127px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.93675" style="font-size:29.3675px;line-height:41px">
+  <div class="ph" style="left:179.519px;top:461.423px;width:403.599px;height:302.532px;border-radius:50px"><img src="assets/images/2025-2026/340b11076324bff3106177430e04d435.jpg" alt="External Relations partnership" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:595.455px;top:436.152px;width:442.464px;height:331.848px;border-radius:50px"><img src="assets/images/2025-2026/5f5a9b4287ac5c30ef52cbe93f7e982a.jpg" alt="External Relations team" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1049.92px;top:448.628px;width:420.436px;height:315.327px;border-radius:49px"><img src="assets/images/2025-2026/f8332def361b06c5f34269f3e4c38e08.jpg" alt="External Relations sponsors" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px"><div class="tx c" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
+  <div class="el" style="left:565.262px;top:188.368px;width:469.477px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">3.External Relations</div></div></div>
+  <div class="el" style="left:219.317px;top:267.432px;width:1108.17px;height:158.127px">
+    <div class="tx" data-dy="-2.93675" style="font-size:29.3675px;line-height:41px">
       <div class="ln">ER Committee Build strong <span class="k">partnerships</span> with <span class="k">companies,</span></div>
       <div class="ln">sponsorships,<span class="k"> organizations</span>, and supporters while providing members</div>
       <div class="ln">with real experience in <span class="k">communication, negotiation, persuasion, and</span></div>
       <div class="ln"><span class="k">networking</span>, creating<span class="k"> opportunities</span> that support EPSF-Alex’s activities</div>
     </div>
   </div>
-  <div class="ph" style="left:179.519px;top:461.423px;width:403.599px;height:302.532px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/340b11076324bff3106177430e04d435.jpg" alt="External Relations partnership" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:595.455px;top:436.152px;width:442.464px;height:331.848px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/5f5a9b4287ac5c30ef52cbe93f7e982a.jpg" alt="External Relations team" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1049.92px;top:448.628px;width:420.436px;height:315.327px;border-radius:49px;--o:6"><img src="assets/images/2025-2026/f8332def361b06c5f34269f3e4c38e08.jpg" alt="External Relations sponsors" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 21 · MARKETING -->
@@ -848,10 +761,11 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1460" data-y="110" data-s="44" style="--dr:11deg;animation-delay:-2.3s" aria-hidden="true"><use href="#i-spark"/></svg>
   <svg class="doodle" data-x="250" data-y="590" data-s="50" style="--dr:8deg;animation-delay:-3.5s" aria-hidden="true"><use href="#i-cam"/></svg>
   <svg class="doodle soft" data-x="1250" data-y="590" data-s="46" style="--dr:-7deg;animation-delay:-1.4s" aria-hidden="true"><use href="#i-globe"/></svg>
-  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px;--o:1"><div class="tx c" data-t="title" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
-  <div class="el" style="left:654.888px;top:188.368px;width:290.223px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">4.Marketing</div></div></div>
-  <div class="el" style="left:219.317px;top:264.157px;width:1106.438px;height:199.136px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.93216" style="font-size:29.3216px;line-height:41px">
+  <div class="ph" style="left:546.588px;top:429.078px;width:451.897px;height:338.922px;border-radius:50px"><img src="assets/images/2025-2026/b31c13a4b9e2dd5abc2006f8ab76471f.jpg" alt="Marketing team" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px"><div class="tx c" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
+  <div class="el" style="left:654.888px;top:188.368px;width:290.223px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">4.Marketing</div></div></div>
+  <div class="el" style="left:219.317px;top:264.157px;width:1106.438px;height:199.136px">
+    <div class="tx" data-dy="-2.93216" style="font-size:29.3216px;line-height:41px">
       <div class="ln">Marketing is our picture and <span class="k">exposure</span> as an EPSF-Alex for others</div>
       <div class="ln">through many aspects and ways, which involves <span class="k">keeping</span><span class="k"> </span>all our pages</div>
       <div class="ln"><span class="k">active</span>, as well as <span class="k">offline promotion</span>, which includes raising awareness</div>
@@ -859,7 +773,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       <div class="ln">and<span class="k"> public figures.</span></div>
     </div>
   </div>
-  <div class="ph" data-wide style="left:546.588px;top:429.078px;width:451.897px;height:338.922px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/b31c13a4b9e2dd5abc2006f8ab76471f.jpg" alt="Marketing team" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 22 · MEDIA AND PUBLICATIONS -->
@@ -868,21 +781,21 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1460" data-y="110" data-s="44" style="--dr:12deg;animation-delay:-2.6s" aria-hidden="true"><use href="#i-pen"/></svg>
   <svg class="doodle" data-x="750" data-y="600" data-s="46" style="--dr:8deg;animation-delay:-3.8s" aria-hidden="true"><use href="#i-spark"/></svg>
   <svg class="doodle soft" data-x="1380" data-y="600" data-s="42" style="--dr:-7deg;animation-delay:-1.1s" aria-hidden="true"><use href="#i-book"/></svg>
-  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px;--o:1"><div class="tx c" data-t="title" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
-  <div class="el" style="left:502.677px;top:188.368px;width:594.646px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">5.Media and Publications</div></div></div>
-  <div class="el" style="left:219.317px;top:252.975px;width:1059.518px;height:260.481px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.75951" style="font-size:27.5951px;line-height:38px">
+  <div class="ph" style="left:289.709px;top:515.025px;width:337.3px;height:252.975px;border-radius:50px"><img src="assets/images/2025-2026/04dd4371e3398a39c4ab9fa693d486c3.jpg" alt="Media coverage" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:931.029px;top:497.503px;width:360.663px;height:270.497px;border-radius:50px"><img src="assets/images/2025-2026/ed965109588da3ffe2301d69af70a9f7.jpg" alt="Media and Publications team" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:219.317px;top:76.8px;width:1161.365px;height:111.568px"><div class="tx c" data-dy="-9.3352" style="font-size:93.3527px;line-height:130.2384px"><div class="ln"><span class="k">Supportive</span> Committees</div></div></div>
+  <div class="el" style="left:502.677px;top:188.368px;width:594.646px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">5.Media and Publications</div></div></div>
+  <div class="el" style="left:219.317px;top:252.975px;width:1059.518px;height:260.481px">
+    <div class="tx" data-dy="-2.75951" style="font-size:27.5951px;line-height:38px">
       <div class="ln">Media is the <span class="k">visual voice</span> and face of our association and is responsible for</div>
       <div class="ln">creating the<span class="k"> designs, photos, videos, </span>and<span class="k"> visual content</span> that represent</div>
       <div class="ln">EPSF-Alex.</div>
-      <div class="ln bl">We shape how the association is seen and remembered, making</div>
+      <div class="ln">We shape how the association is seen and remembered, making</div>
       <div class="ln"><span class="k">creativity, passion,</span> and attention to detail essential to everything we do.</div>
-      <div class="ln bl">We’re looking for people who genuinely enjoy creative work and are</div>
+      <div class="ln">We’re looking for people who genuinely enjoy creative work and are</div>
       <div class="ln">passionate about creating and visualising.</div>
     </div>
   </div>
-  <div class="ph" style="left:289.709px;top:515.025px;width:337.3px;height:252.975px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/04dd4371e3398a39c4ab9fa693d486c3.jpg" alt="Media coverage" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:931.029px;top:497.503px;width:360.663px;height:270.497px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/ed965109588da3ffe2301d69af70a9f7.jpg" alt="Media and Publications team" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 23 · OPPORTUNITIES -->
@@ -891,18 +804,18 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1465" data-y="280" data-s="44" style="--dr:13deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-plane"/></svg>
   <svg class="doodle" data-x="85" data-y="560" data-s="44" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-pyra"/></svg>
   <svg class="doodle soft" data-x="1470" data-y="560" data-s="40" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:275.8px;top:76.8px;width:1048.4px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Opportiunities</span></div></div></div>
-  <div class="el" style="left:203.868px;top:221.732px;width:1192.264px;height:523.649px;--o:2">
-    <div class="tx" data-t="body" data-dy="-3.67536" style="font-size:36.7536px;line-height:51px">
+  <div class="el" style="left:275.8px;top:76.8px;width:1048.4px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Our <span class="k">Opportiunities</span></div></div></div>
+  <div class="el" style="left:203.868px;top:221.732px;width:1192.264px;height:523.649px">
+    <div class="tx" data-dy="-3.67536" style="font-size:36.7536px;line-height:51px">
       <div class="ln k" style="text-align:center">THINK BIGGER. GO FURTHER.</div>
       <div class="ln k" style="text-align:center">1. IPSF</div>
-      <div class="ln bl">Your gateway to the world.</div>
+      <div class="ln">Your gateway to the world.</div>
       <div class="ln">Meet pharmacy students from different countries, discover</div>
       <div class="ln">international opportunities, and expand your network</div>
       <div class="ln">beyond Egypt.</div>
-      <div class="ln sp" style="font-size:15.4208px;line-height:21px">&nbsp;</div>
-      <div class="ln bl" style="text-align:center"><span class="k">2. EPSF Working Groups and Functions</span></div>
-      <div class="ln bl">Your gateway beyond your association.</div>
+      <div class="ln" style="font-size:15.4208px;line-height:21px">&nbsp;</div>
+      <div class="ln" style="text-align:center"><span class="k">2. EPSF Working Groups and Functions</span></div>
+      <div class="ln">Your gateway beyond your association.</div>
       <div class="ln">Work with students from across Egypt, take part in national</div>
       <div class="ln">initiatives, and gain experience beyond your local team.</div>
     </div>
@@ -915,10 +828,13 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="46" style="--dr:12deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-flag"/></svg>
   <svg class="doodle" data-x="100" data-y="330" data-s="44" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-comp"/></svg>
   <svg class="doodle soft" data-x="1470" data-y="330" data-s="42" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-cap"/></svg>
-  <div class="el" style="left:420.806px;top:76.8px;width:758.388px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
-  <div class="el" style="left:242.88px;top:223.726px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">1. Step On The Way</div></div></div>
-  <div class="el" style="left:242.88px;top:286.762px;width:1057.833px;height:155.366px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
+  <div class="ph" style="left:213.836px;top:453.783px;width:386.22px;height:257.417px;border-radius:28px"><img src="assets/images/2025-2026/4f70da5e5230eb56f20ec5e615ee5a1a.jpg" alt="Step On The Way stage" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:618.715px;top:453.783px;width:378.42px;height:252.219px;border-radius:28px"><img src="assets/images/2025-2026/f3b3705578a411d747d14f2c31035dc1.jpg" alt="Step On The Way crowd" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1016.14px;top:451.258px;width:390.065px;height:259.942px;border-radius:28px"><img src="assets/images/2025-2026/645801052d51eff0ae1e4f06b1d03458.jpg" alt="Step On The Way workshop" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:420.806px;top:76.8px;width:758.388px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
+  <div class="el" style="left:242.88px;top:223.726px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">1. Step On The Way</div></div></div>
+  <div class="el" style="left:242.88px;top:286.762px;width:1057.833px;height:155.366px">
+    <div class="tx" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
       <div class="ln">Since <span class="k">2008</span>:</div>
       <div class="ln">One of Egypt’s most prominent pharmacy student conferences, held annually across</div>
       <div class="ln"><span class="k">8–10 Egyptian universities</span>, offering sessions, workshops, and competitions that</div>
@@ -926,9 +842,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       <div class="ln">networking, and inspiration, reaching <span class="k">4,000+ attendees.</span></div>
     </div>
   </div>
-  <div class="ph" style="left:213.836px;top:453.783px;width:386.22px;height:257.417px;border-radius:28px;--o:4"><img src="assets/images/2025-2026/4f70da5e5230eb56f20ec5e615ee5a1a.jpg" alt="Step On The Way stage" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:618.715px;top:453.783px;width:378.42px;height:252.219px;border-radius:28px;--o:5"><img src="assets/images/2025-2026/f3b3705578a411d747d14f2c31035dc1.jpg" alt="Step On The Way crowd" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1016.14px;top:451.258px;width:390.065px;height:259.942px;border-radius:28px;--o:6"><img src="assets/images/2025-2026/645801052d51eff0ae1e4f06b1d03458.jpg" alt="Step On The Way workshop" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 25 · AWARE -->
@@ -937,17 +850,17 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1330" data-y="480" data-s="54" style="--dr:11deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-flask"/></svg>
   <svg class="doodle" data-x="60" data-y="150" data-s="44" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-pulse"/></svg>
   <svg class="doodle soft" data-x="1470" data-y="150" data-s="42" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
-  <div class="el" style="left:251.901px;top:216.231px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">2. Aware</div></div></div>
-  <div class="el" style="left:255.818px;top:282.268px;width:1057.833px;height:91.366px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
+  <div class="ph" style="left:393.086px;top:414.038px;width:386.22px;height:257.417px;border-radius:28px"><img src="assets/images/2025-2026/8e5011d9b543496e7a47dffef352aee9.jpg" alt="Aware AMR event" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:797.964px;top:414.038px;width:378.42px;height:252.219px;border-radius:28px"><img src="assets/images/2025-2026/1b7c761467a5fc28b446e6bf43e94765.jpg" alt="Aware live session" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
+  <div class="el" style="left:251.901px;top:216.231px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">2. Aware</div></div></div>
+  <div class="el" style="left:255.818px;top:282.268px;width:1057.833px;height:91.366px">
+    <div class="tx" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
       <div class="ln">An event focused on raising awareness about <span class="k">Antimicrobial Resistance (AMR)</span>,</div>
       <div class="ln">educating pharmacy students and the community about its impact and promoting</div>
       <div class="ln">responsible antimicrobial use.</div>
     </div>
   </div>
-  <div class="ph" style="left:393.086px;top:414.038px;width:386.22px;height:257.417px;border-radius:28px;--o:4"><img src="assets/images/2025-2026/8e5011d9b543496e7a47dffef352aee9.jpg" alt="Aware AMR event" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:797.964px;top:414.038px;width:378.42px;height:252.219px;border-radius:28px;--o:5"><img src="assets/images/2025-2026/1b7c761467a5fc28b446e6bf43e94765.jpg" alt="Aware live session" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 26 · PHOCUS -->
@@ -956,10 +869,13 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="46" style="--dr:11deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-sign"/></svg>
   <svg class="doodle" data-x="95" data-y="330" data-s="44" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-cap"/></svg>
   <svg class="doodle soft" data-x="1470" data-y="330" data-s="40" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
-  <div class="el" style="left:235.388px;top:226.655px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">3. PHocus</div></div></div>
-  <div class="el" style="left:239.305px;top:291.227px;width:1057.833px;height:251.366px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
+  <div class="ph" style="left:235.388px;top:460.653px;width:386.22px;height:257.417px;border-radius:28px"><img src="assets/images/2025-2026/e5c99126d78cab2b3181d347caea0006.jpg" alt="PHocus event" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:640.266px;top:460.653px;width:378.42px;height:252.219px;border-radius:28px"><img src="assets/images/2025-2026/4d3a3bc9cbc0d2647269522b36255406.jpg" alt="PHocus audience" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1037.69px;top:458.128px;width:390.065px;height:259.942px;border-radius:28px"><img src="assets/images/2025-2026/9dca2b0873d583c9932ed7a9570e8322.jpg" alt="PHocus speakers" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
+  <div class="el" style="left:235.388px;top:226.655px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">3. PHocus</div></div></div>
+  <div class="el" style="left:239.305px;top:291.227px;width:1057.833px;height:251.366px">
+    <div class="tx" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
       <div class="ln">The largest and most influential local event for pharmacy students, held annually</div>
       <div class="ln">across <span class="k">40 universities</span>, helping students explore diverse pharmacy career paths and</div>
       <div class="ln">gain deeper insight into the profession. Over six years, PHocus has provided <span class="k">12,000+</span></div>
@@ -967,9 +883,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       <div class="ln">development.</div>
     </div>
   </div>
-  <div class="ph" style="left:235.388px;top:460.653px;width:386.22px;height:257.417px;border-radius:28px;--o:4"><img src="assets/images/2025-2026/e5c99126d78cab2b3181d347caea0006.jpg" alt="PHocus event" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:640.266px;top:460.653px;width:378.42px;height:252.219px;border-radius:28px;--o:5"><img src="assets/images/2025-2026/4d3a3bc9cbc0d2647269522b36255406.jpg" alt="PHocus audience" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1037.69px;top:458.128px;width:390.065px;height:259.942px;border-radius:28px;--o:6"><img src="assets/images/2025-2026/9dca2b0873d583c9932ed7a9570e8322.jpg" alt="PHocus speakers" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 27 · SPECTRUM -->
@@ -978,17 +891,17 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="46" style="--dr:12deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-flask"/></svg>
   <svg class="doodle" data-x="500" data-y="690" data-s="44" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-spark"/></svg>
   <svg class="doodle soft" data-x="1050" data-y="690" data-s="42" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-book"/></svg>
-  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
-  <div class="el" style="left:235.388px;top:225.974px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">4. sPEctrum</div></div></div>
-  <div class="el" style="left:235.388px;top:292.634px;width:1057.833px;height:59.366px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
+  <div class="ph" style="left:203.818px;top:386.525px;width:386.22px;height:257.417px;border-radius:28px"><img src="assets/images/2025-2026/14c10b27deac5669340163cc1aa145ed.jpg" alt="sPEctrum event" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:608.697px;top:386.525px;width:378.42px;height:252.219px;border-radius:28px"><img src="assets/images/2025-2026/fc221f1708de3c67c4063f6571239200.jpg" alt="sPEctrum branding" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1006.12px;top:384px;width:390.065px;height:259.942px;border-radius:28px"><img src="assets/images/2025-2026/a86004150530cd92d4ddaf6ed51c6b22.jpg" alt="sPEctrum session" loading="lazy" decoding="async" style="object-position:50% 29.4%"/></div>
+  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
+  <div class="el" style="left:235.388px;top:225.974px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">4. sPEctrum</div></div></div>
+  <div class="el" style="left:235.388px;top:292.634px;width:1057.833px;height:59.366px">
+    <div class="tx" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
       <div class="ln">An event designed to equip pharmacy students with <span class="k">essential pharmaceutical</span></div>
       <div class="ln"><span class="k">knowledge</span> while exposing them to <span class="k">diverse career paths</span> within the pharmacy industry.</div>
     </div>
   </div>
-  <div class="ph" style="left:203.818px;top:386.525px;width:386.22px;height:257.417px;border-radius:28px;--o:4"><img src="assets/images/2025-2026/14c10b27deac5669340163cc1aa145ed.jpg" alt="sPEctrum event" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:608.697px;top:386.525px;width:378.42px;height:252.219px;border-radius:28px;--o:5"><img src="assets/images/2025-2026/fc221f1708de3c67c4063f6571239200.jpg" alt="sPEctrum branding" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1006.12px;top:384px;width:390.065px;height:259.942px;border-radius:28px;--o:6"><img src="assets/images/2025-2026/a86004150530cd92d4ddaf6ed51c6b22.jpg" alt="sPEctrum session" loading="lazy" decoding="async" style="object-position:50% 29.4%"/></div>
 </div></section>
 
 <!-- 28 · ORIGIN -->
@@ -997,17 +910,17 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="44" style="--dr:11deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-star"/></svg>
   <svg class="doodle" data-x="500" data-y="700" data-s="44" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-comp"/></svg>
   <svg class="doodle soft" data-x="1050" data-y="700" data-s="42" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-cap"/></svg>
-  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
-  <div class="el" style="left:237.183px;top:219.307px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">5. Origin</div></div></div>
-  <div class="el" style="left:237.183px;top:292.634px;width:1057.833px;height:91.366px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
+  <div class="ph" style="left:203.818px;top:406.525px;width:386.22px;height:257.417px;border-radius:28px"><img src="assets/images/2025-2026/f57f802b0dd509355f4e97cbbcc147da.jpg" alt="Origin coaching event" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:608.697px;top:406.525px;width:378.42px;height:252.219px;border-radius:28px"><img src="assets/images/2025-2026/1c8bc58811738efd6edb60b04c3feabf.jpg" alt="Origin session" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1006.12px;top:404px;width:390.065px;height:259.942px;border-radius:28px"><img src="assets/images/2025-2026/ff46bb43ef35caa1c1e3be3fd8fc9152.jpg" alt="Origin attendees" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
+  <div class="el" style="left:237.183px;top:219.307px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">5. Origin</div></div></div>
+  <div class="el" style="left:237.183px;top:292.634px;width:1057.833px;height:91.366px">
+    <div class="tx" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
       <div class="ln"><span class="k">A career coaching event </span>designed to help pharmacy students better understand their</div>
       <div class="ln">career potential, opportunities, and professional development paths.</div>
     </div>
   </div>
-  <div class="ph" style="left:203.818px;top:406.525px;width:386.22px;height:257.417px;border-radius:28px;--o:4"><img src="assets/images/2025-2026/f57f802b0dd509355f4e97cbbcc147da.jpg" alt="Origin coaching event" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:608.697px;top:406.525px;width:378.42px;height:252.219px;border-radius:28px;--o:5"><img src="assets/images/2025-2026/1c8bc58811738efd6edb60b04c3feabf.jpg" alt="Origin session" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1006.12px;top:404px;width:390.065px;height:259.942px;border-radius:28px;--o:6"><img src="assets/images/2025-2026/ff46bb43ef35caa1c1e3be3fd8fc9152.jpg" alt="Origin attendees" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 29 · BLOOD DONATION -->
@@ -1016,10 +929,13 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="46" style="--dr:12deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle" data-x="500" data-y="715" data-s="40" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-pulse"/></svg>
   <svg class="doodle soft" data-x="1050" data-y="715" data-s="38" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-cross"/></svg>
-  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
-  <div class="el" style="left:203.818px;top:215.249px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">6. Blood Donation</div></div></div>
-  <div class="el" style="left:207.736px;top:268.285px;width:1057.833px;height:251.366px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
+  <div class="ph" style="left:203.818px;top:433.783px;width:386.22px;height:257.417px;border-radius:28px"><img src="assets/images/2025-2026/7608d69e30d0761604caa21dde759967.jpg" alt="Blood donation drive" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:608.697px;top:433.783px;width:378.42px;height:252.219px;border-radius:28px"><img src="assets/images/2025-2026/63ed6a9a26644ba32de5af572d1834de.jpg" alt="Blood donation donors" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:1006.12px;top:431.258px;width:390.065px;height:259.942px;border-radius:28px"><img src="assets/images/2025-2026/3f546b84e5d844e0423fb78152761f97.jpg" alt="Blood donation campaign" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
+  <div class="el" style="left:203.818px;top:215.249px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">6. Blood Donation</div></div></div>
+  <div class="el" style="left:207.736px;top:268.285px;width:1057.833px;height:251.366px">
+    <div class="tx" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
       <div class="ln">Since <span class="k">2011</span>:</div>
       <div class="ln">Raises awareness about the importance of regular blood donation while contributing</div>
       <div class="ln">to <span class="k">Egypt’s 2030 healthcare and community development goals</span>. EPSF has collected</div>
@@ -1027,9 +943,6 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
       <div class="ln">impact.</div>
     </div>
   </div>
-  <div class="ph" style="left:203.818px;top:433.783px;width:386.22px;height:257.417px;border-radius:28px;--o:4"><img src="assets/images/2025-2026/7608d69e30d0761604caa21dde759967.jpg" alt="Blood donation drive" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:608.697px;top:433.783px;width:378.42px;height:252.219px;border-radius:28px;--o:5"><img src="assets/images/2025-2026/63ed6a9a26644ba32de5af572d1834de.jpg" alt="Blood donation donors" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:1006.12px;top:431.258px;width:390.065px;height:259.942px;border-radius:28px;--o:6"><img src="assets/images/2025-2026/3f546b84e5d844e0423fb78152761f97.jpg" alt="Blood donation campaign" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 30 · GAITH -->
@@ -1038,18 +951,18 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="46" style="--dr:11deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-sprout"/></svg>
   <svg class="doodle" data-x="500" data-y="715" data-s="40" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="1050" data-y="715" data-s="40" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-pulse"/></svg>
-  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
-  <div class="el" style="left:222.039px;top:232.843px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">7. Gaith Project</div></div></div>
-  <div class="el" style="left:222.039px;top:292.634px;width:1057.833px;height:91.366px;--o:3">
-    <div class="tx" data-t="body" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
+  <div class="ph" style="left:138.593px;top:420.451px;width:390.065px;height:259.942px;border-radius:50px"><img src="assets/images/2025-2026/0b102411e764afdde3c6e8579053d4c4.jpg" alt="Gaith medical convoy" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:551.732px;top:420.451px;width:406.282px;height:270.749px;border-radius:50px"><img src="assets/images/2025-2026/17be9f6c5896dd6dc35bccad1844a9de.jpg" alt="Gaith afforestation" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:994.014px;top:429.022px;width:467.393px;height:262.178px;border-radius:50px"><img src="assets/images/2025-2026/bcb80ed505bd45d8f7819f85ae1f6f78.jpg" alt="Gaith village visit" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:420.813px;top:76.8px;width:758.375px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Main Projects</div></div></div>
+  <div class="el" style="left:222.039px;top:232.843px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">7. Gaith Project</div></div></div>
+  <div class="el" style="left:222.039px;top:292.634px;width:1057.833px;height:91.366px">
+    <div class="tx" data-dy="-2.31712" style="font-size:23.1712px;line-height:32px">
       <div class="ln"><span class="k">A humanitarian and environmental project focused on medical convoys, supporting</span></div>
       <div class="ln"><span class="k">underserved villages, afforestation, and environmental initiatives, </span>creating meaningful</div>
       <div class="ln">and sustainable community impact.</div>
     </div>
   </div>
-  <div class="ph" style="left:138.593px;top:420.451px;width:390.065px;height:259.942px;border-radius:50px;--o:4"><img src="assets/images/2025-2026/0b102411e764afdde3c6e8579053d4c4.jpg" alt="Gaith medical convoy" loading="lazy" decoding="async"/></div>
-  <div class="ph" style="left:551.732px;top:420.451px;width:406.282px;height:270.749px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/17be9f6c5896dd6dc35bccad1844a9de.jpg" alt="Gaith afforestation" loading="lazy" decoding="async"/></div>
-  <div class="ph" data-wide style="left:994.014px;top:429.022px;width:467.393px;height:262.178px;border-radius:50px;--o:6"><img src="assets/images/2025-2026/bcb80ed505bd45d8f7819f85ae1f6f78.jpg" alt="Gaith village visit" loading="lazy" decoding="async"/></div>
 </div></section>
 
 <!-- 31 · MEGA EVENTS -->
@@ -1058,13 +971,13 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1450" data-y="110" data-s="46" style="--dr:13deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-plane"/></svg>
   <svg class="doodle" data-x="800" data-y="360" data-s="50" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-people"/></svg>
   <svg class="doodle soft" data-x="95" data-y="560" data-s="44" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:428.394px;top:76.8px;width:743.213px;height:126.783px;--o:1"><div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Mega Events</div></div></div>
-  <div class="el" style="left:212.091px;top:269.474px;width:532.834px;height:53.036px;--o:2"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">8. SEP Hosting</div></div></div>
-  <div class="ph" style="left:212.091px;top:322.51px;width:333.855px;height:333.855px;border-radius:50px;--o:3"><img src="assets/images/2025-2026/5003781d229bca51f0d9ee841ca06fcc.jpg" alt="SEP Hosting" loading="lazy" decoding="async"/></div>
-  <div class="el" style="left:1010.43px;top:260.202px;width:532.834px;height:53.036px;--o:4"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">9. SEP Seminar</div></div></div>
-  <div class="ph" style="left:993.605px;top:322.51px;width:412.595px;height:274.956px;border-radius:50px;--o:5"><img src="assets/images/2025-2026/c0c733e49ed305b5e0250feef1444790.jpg" alt="SEP Seminar" loading="lazy" decoding="async"/></div>
-  <div class="el" style="left:561.398px;top:436.401px;width:532.834px;height:53.036px;--o:6"><div class="tx k" data-t="sub" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">10. Cultural Clubs</div></div></div>
-  <div class="ph" data-wide style="left:576.894px;top:508.957px;width:372.919px;height:248.457px;border-radius:50px;--o:7"><img src="assets/images/2025-2026/c1f0efe831c730e2193c38cb7fa7e6d4.jpg" alt="Cultural Clubs" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:212.091px;top:322.51px;width:333.855px;height:333.855px;border-radius:50px"><img src="assets/images/2025-2026/5003781d229bca51f0d9ee841ca06fcc.jpg" alt="SEP Hosting" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:993.605px;top:322.51px;width:412.595px;height:274.956px;border-radius:50px"><img src="assets/images/2025-2026/c0c733e49ed305b5e0250feef1444790.jpg" alt="SEP Seminar" loading="lazy" decoding="async"/></div>
+  <div class="ph" style="left:576.894px;top:508.957px;width:372.919px;height:248.457px;border-radius:50px"><img src="assets/images/2025-2026/c1f0efe831c730e2193c38cb7fa7e6d4.jpg" alt="Cultural Clubs" loading="lazy" decoding="async"/></div>
+  <div class="el" style="left:428.394px;top:76.8px;width:743.213px;height:126.783px"><div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Mega Events</div></div></div>
+  <div class="el" style="left:212.091px;top:269.474px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">8. SEP Hosting</div></div></div>
+  <div class="el" style="left:1010.43px;top:260.202px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">9. SEP Seminar</div></div></div>
+  <div class="el" style="left:561.398px;top:436.401px;width:532.834px;height:53.036px"><div class="tx k" data-dy="-4.48187" style="font-size:44.8187px;line-height:62px"><div class="ln">10. Cultural Clubs</div></div></div>
 </div></section>
 
 <!-- 32 · HOW TO JOIN -->
@@ -1073,12 +986,12 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="760" data-y="250" data-s="48" style="--dr:9deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-people"/></svg>
   <svg class="doodle" data-x="1290" data-y="250" data-s="44" style="--dr:11deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-check"/></svg>
   <svg class="doodle soft" data-x="760" data-y="600" data-s="46" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
-  <div class="el" style="left:162.129px;top:373.23px;width:266.388px;height:104.503px;--o:2"><div class="tx c" data-t="word" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">Apply</div></div></div>
-  <div class="blob" style="left:428.516px;top:409.247px;width:115.958px;height:32.468px;--o:3" aria-hidden="true"><svg viewBox="0 0 799 227"><path d="M20 96c180-34 380-46 560-30l-46-52 106 74-104 76 44-56c-180-16-380-6-560 28z" fill="#0053cd"/></svg></div>
-  <div class="el" style="left:544.474px;top:373.23px;width:434.875px;height:104.503px;--o:4"><div class="tx c" data-t="word" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">Interview</div></div></div>
-  <div class="blob" style="left:979.349px;top:409.247px;width:115.958px;height:32.468px;--o:5" aria-hidden="true"><svg viewBox="0 0 799 227"><path d="M20 96c180-34 380-46 560-30l-46-52 106 74-104 76 44-56c-180-16-380-6-560 28z" fill="#0053cd"/></svg></div>
-  <div class="el" style="left:1086.02px;top:373.23px;width:351.85px;height:104.503px;--o:6"><div class="tx c" data-t="word" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">Engage</div></div></div>
+  <div class="blob" style="left:428.516px;top:409.247px;width:115.958px;height:32.468px" aria-hidden="true"><svg viewBox="0 0 799 227"><path d="M20 96c180-34 380-46 560-30l-46-52 106 74-104 76 44-56c-180-16-380-6-560 28z" fill="#0053cd"/></svg></div>
+  <div class="blob" style="left:979.349px;top:409.247px;width:115.958px;height:32.468px" aria-hidden="true"><svg viewBox="0 0 799 227"><path d="M20 96c180-34 380-46 560-30l-46-52 106 74-104 76 44-56c-180-16-380-6-560 28z" fill="#0053cd"/></svg></div>
+  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
+  <div class="el" style="left:162.129px;top:373.23px;width:266.388px;height:104.503px"><div class="tx c" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">Apply</div></div></div>
+  <div class="el" style="left:544.474px;top:373.23px;width:434.875px;height:104.503px"><div class="tx c" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">Interview</div></div></div>
+  <div class="el" style="left:1086.02px;top:373.23px;width:351.85px;height:104.503px"><div class="tx c" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">Engage</div></div></div>
 </div></section>
 
 <!-- 33 · APPLY -->
@@ -1087,10 +1000,10 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1420" data-y="480" data-s="50" style="--dr:10deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-clip"/></svg>
   <svg class="doodle" data-x="1290" data-y="620" data-s="46" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-check"/></svg>
   <svg class="doodle soft" data-x="1470" data-y="180" data-s="40" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
-  <div class="el" style="left:178.588px;top:238.604px;width:326.4px;height:104.503px;--o:2"><div class="tx" data-t="word" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">1.Apply</div></div></div>
-  <div class="el" style="left:193.8px;top:362.909px;width:990.844px;height:328.291px;--o:3">
-    <div class="tx" data-t="body" data-dy="-3.942" style="font-size:39.4199px;line-height:55.1667px">
+  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
+  <div class="el" style="left:178.588px;top:238.604px;width:326.4px;height:104.503px"><div class="tx" data-dy="-8.74843" style="font-size:87.4843px;line-height:122px"><div class="ln">1.Apply</div></div></div>
+  <div class="el" style="left:193.8px;top:362.909px;width:990.844px;height:328.291px">
+    <div class="tx" data-dy="-3.942" style="font-size:39.4199px;line-height:55.1667px">
       <div class="ln k">Application Form</div>
       <div class="ln">Tell us about yourself, your motivation, and</div>
       <div class="ln">your expectations through our application</div>
@@ -1107,10 +1020,10 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1430" data-y="460" data-s="50" style="--dr:10deg;animation-delay:-2.5s" aria-hidden="true"><use href="#i-rings"/></svg>
   <svg class="doodle" data-x="1290" data-y="610" data-s="46" style="--dr:8deg;animation-delay:-3.7s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="1470" data-y="170" data-s="40" style="--dr:-7deg;animation-delay:-1.2s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
-  <div class="el" style="left:178.947px;top:203.583px;width:424.738px;height:86.436px;--o:2"><div class="tx" data-t="word" data-dy="-7.2818" style="font-size:72.818px;line-height:101px"><div class="ln">2.Interview</div></div></div>
-  <div class="el" style="left:178.947px;top:308.086px;width:990.844px;height:441.291px;--o:3">
-    <div class="tx i" data-t="body" data-dy="-3.942" style="font-size:39.4199px;line-height:55.1667px">
+  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
+  <div class="el" style="left:178.947px;top:203.583px;width:424.738px;height:86.436px"><div class="tx" data-dy="-7.2818" style="font-size:72.818px;line-height:101px"><div class="ln">2.Interview</div></div></div>
+  <div class="el" style="left:178.947px;top:308.086px;width:990.844px;height:441.291px">
+    <div class="tx i" data-dy="-3.942" style="font-size:39.4199px;line-height:55.1667px">
       <div class="ln">Get to know us, and let us get to know you. The</div>
       <div class="ln">interview helps us understand your motivation,</div>
       <div class="ln">attitude, and ability to engage with EPSF-Alex.</div>
@@ -1131,10 +1044,10 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1430" data-y="470" data-s="48" style="--dr:10deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-clip"/></svg>
   <svg class="doodle" data-x="600" data-y="690" data-s="46" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-star"/></svg>
   <svg class="doodle soft" data-x="1000" data-y="690" data-s="42" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px;--o:1"><div class="tx c" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
-  <div class="el" style="left:178.947px;top:203.583px;width:348.538px;height:85.703px;--o:2"><div class="tx" data-t="word" data-dy="-7.14847" style="font-size:71.4847px;line-height:100px"><div class="ln">3.Engage</div></div></div>
-  <div class="el" style="left:193.8px;top:303.646px;width:990.844px;height:328.291px;--o:3">
-    <div class="tx i" data-t="body" data-dy="-3.942" style="font-size:39.4199px;line-height:55.1667px">
+  <div class="el" style="left:372.806px;top:76.8px;width:854.388px;height:126.783px"><div class="tx c" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln"><span class="i">How to </span><span class="k">join</span><span class="i"> us?</span></div></div></div>
+  <div class="el" style="left:178.947px;top:203.583px;width:348.538px;height:85.703px"><div class="tx" data-dy="-7.14847" style="font-size:71.4847px;line-height:100px"><div class="ln">3.Engage</div></div></div>
+  <div class="el" style="left:193.8px;top:303.646px;width:990.844px;height:328.291px">
+    <div class="tx i" data-dy="-3.942" style="font-size:39.4199px;line-height:55.1667px">
       <div class="ln k">Checklist</div>
       <div class="ln">Start experiencing EPSF-Alex through our</div>
       <div class="ln">activities, opportunities, and events.</div>
@@ -1151,20 +1064,20 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
   <svg class="doodle" data-x="1380" data-y="140" data-s="48" style="--dr:11deg;animation-delay:-2.4s" aria-hidden="true"><use href="#i-cap"/></svg>
   <svg class="doodle" data-x="250" data-y="400" data-s="46" style="--dr:8deg;animation-delay:-3.6s" aria-hidden="true"><use href="#i-heart"/></svg>
   <svg class="doodle soft" data-x="1330" data-y="400" data-s="44" style="--dr:-7deg;animation-delay:-1.3s" aria-hidden="true"><use href="#i-spark"/></svg>
-  <div class="el fin-tx" style="left:117px;top:246.608px;width:1366px;height:274.783px;transform-origin:center center;--o:1">
-    <div class="tx c k" data-t="title" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Complete the journey.</div><div class="ln">Become an EPSFer!</div></div>
+  <div class="el fin-tx" style="left:117px;top:246.608px;width:1366px;height:274.783px;transform-origin:center center">
+    <div class="tx c k" data-dy="-10.6084" style="font-size:106.084px;line-height:148px"><div class="ln">Complete the journey.</div><div class="ln">Become an EPSFer!</div></div>
   </div>
-  <svg class="squig-fin" style="left:520px;top:540px;width:560px;height:18px;--o:2" viewBox="0 0 320 16" preserveAspectRatio="none" aria-hidden="true"><use href="#i-squig"/></svg>
+  <svg class="squig-fin" style="left:520px;top:540px;width:560px;height:18px" viewBox="0 0 320 16" preserveAspectRatio="none" aria-hidden="true"><use href="#i-squig"/></svg>
   <svg class="jpath" style="left:520px;top:592px;width:560px;height:76px" viewBox="0 0 560 76" preserveAspectRatio="none" aria-hidden="true">
     <path class="base" d="M0 38 C 90 14, 190 62, 280 38 S 470 16, 560 38"/>
     <path class="fill" id="jpFill" d="M0 38 C 90 14, 190 62, 280 38 S 470 16, 560 38"/>
   </svg>
-  <div class="stamps" style="left:482px;top:592px;width:636px;height:118px;--o:3">
+  <div class="stamps" style="left:482px;top:592px;width:636px;height:118px">
     <div class="stampw"><button class="stamp" data-stamp aria-pressed="false" aria-label="Mark Apply complete"><svg class="sc" aria-hidden="true"><use href="#i-cross"/></svg><svg class="sk" aria-hidden="true"><use href="#i-check"/></svg></button><b>Apply</b></div>
     <div class="stampw"><button class="stamp" data-stamp aria-pressed="false" aria-label="Mark Interview complete"><svg class="sc" aria-hidden="true"><use href="#i-cross"/></svg><svg class="sk" aria-hidden="true"><use href="#i-check"/></svg></button><b>Interview</b></div>
     <div class="stampw"><button class="stamp" data-stamp aria-pressed="false" aria-label="Mark Engage complete"><svg class="sc" aria-hidden="true"><use href="#i-cross"/></svg><svg class="sk" aria-hidden="true"><use href="#i-check"/></svg></button><b>Engage</b></div>
   </div>
-  <button class="jreset" id="resetJourney" style="left:1160px;top:608px;--o:4" aria-label="Reset journey"><svg aria-hidden="true"><use href="#i-reset"/></svg></button>
+  <button class="jreset" id="resetJourney" style="left:1160px;top:608px" aria-label="Reset journey"><svg aria-hidden="true"><use href="#i-reset"/></svg></button>
   <p class="sr" id="live" aria-live="polite"></p>
 </div></section>
 
@@ -1175,8 +1088,10 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 <noscript><style>
 .stage>*,.stage>.node>*,.stage>.card>*,.stage>.chip>*{opacity:1!important}
 .sigil{opacity:1!important;transform:none!important}
-@media (min-width:901px){.slide{height:768px;overflow:hidden}.stage{left:0;transform:none}}
+.slide{height:768px;overflow:hidden}
+.stage{left:0;transform:none}
 .squig-fin{stroke-dashoffset:0}
+.viewhint{display:none!important}
 </style></noscript>
 
 <script>
@@ -1184,10 +1099,10 @@ a.pill:focus-visible{outline:3px dashed var(--ink);outline-offset:4px}
 "use strict";
 var root=document.documentElement;
 var RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
-var MQ=matchMedia("(max-width: 900px)");
-function isM(){return MQ.matches;}
 var ASSETS="assets/images/2025-2026/";
-function fit(){root.style.setProperty('--s', isM()?1:(root.clientWidth/1600));}
+
+/* the desktop canvas, fitted to whatever width we are given */
+function fit(){root.style.setProperty('--s',(root.clientWidth/1600));}
 fit();
 
 /* ---------- asset resilience ---------- */
@@ -1265,54 +1180,39 @@ Object.keys(SIG).forEach(function(id){
  st.appendChild(el);
 });
 
-/* ---------- decor placement ---------- */
-var decos=[].slice.call(document.querySelectorAll('.doodle,.sigil')).map(function(el){
-  return {el:el,x:+el.dataset.x||0,y:+el.dataset.y||0,s:+el.dataset.s||40,sig:el.classList.contains('sigil')};
-});
+/* ---------- decor placement (stage coordinates, always) ---------- */
+var decos=[].slice.call(document.querySelectorAll('.doodle,.sigil'));
 function placeDecor(){
-  var m=isM();
   for(var i=0;i<decos.length;i++){
-    var o=decos[i],el=o.el;
-    if(!m){el.style.left=o.x+'px';el.style.top=o.y+'px';el.style.width=o.s+'px';el.style.height=o.s+'px';continue;}
-    if(o.sig){el.style.left='';el.style.top='';el.style.width='';el.style.height='';continue;}
-    var st=el.parentElement,W=st.clientWidth,H=st.clientHeight;
-    if(!W||!H)continue;
-    var ss=Math.max(18,Math.round(o.s*0.46));
-    var nx=o.x/1600, ny=o.y/768;
-    var L=Math.min(W-ss-12,Math.max(12,Math.round(W*nx-ss/2)));
-    var T=(ny<0.5)?10:Math.max(10,H-ss-14);
-    el.style.left=L+'px';el.style.top=T+'px';el.style.width=ss+'px';el.style.height=ss+'px';
+    var el=decos[i],s=+el.dataset.s||40;
+    el.style.left=(+el.dataset.x||0)+'px';
+    el.style.top=(+el.dataset.y||0)+'px';
+    el.style.width=s+'px'; el.style.height=s+'px';
   }
 }
 
-/* ---------- Canva text model (desktop only) ---------- */
+/* ---------- Canva text model ---------- */
 var blocks=[].slice.call(document.querySelectorAll('.tx'));
 var counters=[].slice.call(document.querySelectorAll('[data-count]'));
 var pills=[].slice.call(document.querySelectorAll('.pill'));
 function layout(){
   fit();
-  if(isM()){
-    blocks.forEach(function(tx){tx.style.transform='';});
-    counters.forEach(function(c){c.style.width='';});
-    pills.forEach(function(p){var s=p.querySelector('span');if(s)s.style.transform='';});
-  }else{
-    counters.forEach(function(c){
-      var cur=c.textContent; c.style.width=''; c.textContent=c.getAttribute('data-count');
-      var w=c.offsetWidth; if(w>0)c.style.width=w+'px'; c.textContent=cur;
-    });
-    blocks.forEach(function(tx){
-      var box=tx.parentElement, dy=parseFloat(tx.getAttribute('data-dy'))||0, avail=box.clientWidth;
-      tx.style.transformOrigin=tx.classList.contains('c')?'center top':'left top';
-      tx.style.transform='translateY('+dy+'px)';
-      var nat=tx.scrollWidth,k=(nat>avail+0.5&&nat>0)?avail/nat:1;
-      tx.style.transform='translateY('+dy+'px)'+(k<1?' scale('+k.toFixed(5)+')':'');
-    });
-    pills.forEach(function(p){
-      var s=p.querySelector('span'); if(!s)return; s.style.transform='';
-      var avail=p.clientWidth-10,nat=s.scrollWidth;
-      if(nat>avail&&nat>0)s.style.transform='scale('+(avail/nat).toFixed(4)+')';
-    });
-  }
+  counters.forEach(function(c){
+    var cur=c.textContent; c.style.width=''; c.textContent=c.getAttribute('data-count');
+    var w=c.offsetWidth; if(w>0)c.style.width=w+'px'; c.textContent=cur;
+  });
+  blocks.forEach(function(tx){
+    var box=tx.parentElement, dy=parseFloat(tx.getAttribute('data-dy'))||0, avail=box.clientWidth;
+    tx.style.transformOrigin=tx.classList.contains('c')?'center top':'left top';
+    tx.style.transform='translateY('+dy+'px)';
+    var nat=tx.scrollWidth,k=(nat>avail+0.5&&nat>0)?avail/nat:1;
+    tx.style.transform='translateY('+dy+'px)'+(k<1?' scale('+k.toFixed(5)+')':'');
+  });
+  pills.forEach(function(p){
+    var s=p.querySelector('span'); if(!s)return; s.style.transform='';
+    var avail=p.clientWidth-10,nat=s.scrollWidth;
+    if(nat>avail&&nat>0)s.style.transform='scale('+(avail/nat).toFixed(4)+')';
+  });
   placeDecor();
 }
 
@@ -1321,7 +1221,7 @@ function dr(d,c,w,dl,du,len){return '<path d="'+d+'" fill="none" stroke="'+c+'" 
 function pp(cx,cy,r,f,dl,du){return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+f+'" data-a style="animation:mPop '+(du||620)+'ms cubic-bezier(.2,1.5,.4,1) '+dl+'ms backwards"/>';}
 function rg(cx,cy,r,c,w,dl,du){return '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+c+'" stroke-width="'+w+'" data-a style="animation:mRing '+(du||1000)+'ms ease-out '+dl+'ms forwards"/>';}
 function fly(x,y,s,f,tx,ty,dl,du){return '<g data-a style="--tx:'+tx+'px;--ty:'+ty+'px;--rr:'+(Math.random()*360-180|0)+'deg;animation:mFly '+(du||1100)+'ms cubic-bezier(.2,.7,.4,1) '+dl+'ms forwards"><rect x="'+x+'" y="'+y+'" width="'+s+'" height="'+s+'" rx="'+(s*.24)+'" fill="'+f+'"/></g>';}
-function svg(inner){return '<div class="m-art"><svg viewBox="0 0 1600 768" preserveAspectRatio="xMidYMid meet">'+inner+'</svg></div>';}
+function svg(inner){return '<svg viewBox="0 0 1600 768" preserveAspectRatio="xMidYMid meet">'+inner+'</svg>';}
 var B="#0053cd",S2="#8db6ff",R="#d81f3a",A="#f2a100",G="#12a05c",V="#7a3ff2";
 var MOTIF={
  bloom:function(){return '<div class="m-sweep"></div>'+svg(rg(800,384,120,"#ffffff",3,120,1300)+rg(800,384,200,S2,2,300,1300)+pp(800,384,10,"#fff",80));},
@@ -1492,7 +1392,7 @@ function runCount(el){
 }
 counters.forEach(function(c){if(!RM)c.textContent='0';});
 
-/* ---------- reveal units + cue ---------- */
+/* ---------- reveal units + midpoint cue ---------- */
 var stages=[].slice.call(document.querySelectorAll('.stage'));
 function isWrap(el){return el.classList.contains('node')||el.classList.contains('card')||el.classList.contains('chip');}
 stages.forEach(function(st){
@@ -1518,12 +1418,6 @@ function cue(st){
     var m=document.createElement('div');
     m.className='motif'; m.setAttribute('aria-hidden','true');
     m.style.setProperty('--life',life+'ms');
-    if(isM()){
-      var r=st.getBoundingClientRect(),vh=innerHeight||root.clientHeight;
-      var vt=Math.max(0,-r.top), vb=Math.min(r.height,vh-r.top);
-      var cy=(vt+vb)/2; if(!(cy>0))cy=r.height/2;
-      m.style.setProperty('--ay',Math.round(cy)+'px');
-    }
     m.innerHTML='<div class="m-veil" style="--veil:'+(VEIL[kind]||'#fff')+'"></div>'+fn();
     st.appendChild(m); liveMotifs++;
     setTimeout(function(){if(m.parentNode)m.parentNode.removeChild(m);liveMotifs=Math.max(0,liveMotifs-1);},life+90);
@@ -1541,7 +1435,6 @@ function checkCues(){
     var r=st.getBoundingClientRect();
     if(r.height<=0)continue;
     if(r.bottom<=0||r.top>=vh)continue;
-    /* midpoint of the slide — or of one screenful of it when the slide is taller */
     var anchor=r.top+Math.min(r.height,vh*0.9)/2;
     var crossed=anchor<=vh*0.82&&r.bottom>vh*0.08;
     var fullyShown=r.top>=-1&&r.bottom<=vh+1;
@@ -1564,26 +1457,32 @@ function onScroll(){
     checkCues();
     if(RM)return;
     cimg.style.transform='translate(-50%,calc(-50% + '+((p-.5)*-56).toFixed(1)+'px)) scale(1.08)';
-    if(hero&&!isM()){
+    if(hero){
       var r=hero.getBoundingClientRect();
       if(r.bottom>-120&&r.top<innerHeight+120){
         var t=Math.min(1,Math.max(0,(innerHeight-r.top)/(innerHeight+r.height)));
         hero.style.transform='translateY('+((t-.5)*54).toFixed(1)+'px)';
       }
-    }else if(hero){hero.style.transform='';}
+    }
   });
 }
 function queueChecks(){checkCues();setTimeout(checkCues,90);setTimeout(checkCues,420);setTimeout(checkCues,900);}
 addEventListener('scroll',onScroll,{passive:true});
 addEventListener('hashchange',queueChecks);
-addEventListener('orientationchange',function(){setTimeout(function(){layout();queueChecks();},260);});
+
+/* ---------- portrait nudge ---------- */
+var hint=document.getElementById('viewHint'),hintOff=false;
+var PQ=matchMedia('(max-width:900px) and (orientation:portrait)');
+function updateHint(){hint.classList.toggle('show',PQ.matches&&!hintOff);}
+document.getElementById('hintClose').addEventListener('click',function(){hintOff=true;updateHint();tick();});
+if(PQ.addEventListener)PQ.addEventListener('change',updateHint);else if(PQ.addListener)PQ.addListener(updateHint);
+
+/* ---------- resize ---------- */
 var rz;
-addEventListener('resize',function(){
-  clearTimeout(rz);
-  rz=setTimeout(function(){layout();onScroll();queueChecks();},110);
-},{passive:true});
-if(MQ.addEventListener)MQ.addEventListener('change',function(){layout();queueChecks();});
-else if(MQ.addListener)MQ.addListener(function(){layout();queueChecks();});
+function relayout(){layout();onScroll();queueChecks();updateHint();}
+addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(relayout,110);},{passive:true});
+addEventListener('orientationchange',function(){setTimeout(relayout,260);});
+if(window.visualViewport)visualViewport.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(relayout,140);});
 
 /* ---------- finale journey ---------- */
 var stamps=[].slice.call(document.querySelectorAll('[data-stamp]'));
@@ -1640,10 +1539,10 @@ function loop(){
 }
 
 /* ---------- boot ---------- */
-layout();onScroll();checkCues();
+layout();onScroll();checkCues();updateHint();
 requestAnimationFrame(function(){layout();checkCues();});
 if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){layout();queueChecks();}).catch(function(){});}
-addEventListener('load',function(){layout();queueChecks();});
+addEventListener('load',function(){layout();queueChecks();updateHint();});
 setTimeout(function(){layout();queueChecks();},260);
 })();
 </script>
